@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployees, createEmployee } from '@/lib/db';
+import { requireAuth, requireAdmin } from '@/lib/auth';
+import { sanitizeAdminEmployeePayload, safeErrorResponse } from '@/lib/security';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = requireAuth(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || undefined;
     const department = searchParams.get('department') || undefined;
@@ -18,32 +23,29 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, count: employees.length, data: employees });
   } catch (error) {
-    console.error('Error fetching employees:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch employees' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch employees');
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // Only Administrators can add new employees
+    const auth = requireAdmin(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     const body = await request.json();
-    if (!body.name || !body.email) {
+    if (!body.name || !body.email || typeof body.name !== 'string' || typeof body.email !== 'string') {
       return NextResponse.json(
-        { success: false, message: 'Employee name and email are required' },
+        { success: false, message: 'Valid employee name and email are required' },
         { status: 400 }
       );
     }
 
-    const created = await createEmployee(body);
+    const sanitized = sanitizeAdminEmployeePayload(body);
+    const created = await createEmployee(sanitized as any);
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   } catch (error) {
-    console.error('Error creating employee:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to create employee' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to create employee');
   }
 }
 

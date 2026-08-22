@@ -17,8 +17,32 @@ export default function Home() {
 
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
 
+  // Sync server session with active portal role
+  React.useEffect(() => {
+    fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        role: portalMode,
+        employeeId: portalMode === 'admin' ? 'EMP-1004' : currentEmployeeId
+      })
+    }).catch(err => console.error('Session sync error:', err));
+  }, [portalMode, currentEmployeeId]);
+
   const handleUpdateEmployee = (updated: Employee) => {
     setEmployees(prev => prev.map(emp => emp.id === updated.id ? updated : emp));
+  };
+
+  const handleSwitchPortal = async (mode: 'employee' | 'admin') => {
+    setPortalMode(mode);
+    await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        role: mode,
+        employeeId: mode === 'admin' ? 'EMP-1004' : currentEmployeeId
+      })
+    }).catch(err => console.error('Session sync error:', err));
   };
 
   return (
@@ -37,7 +61,7 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-slate-900 border border-slate-800 p-0.5 rounded-xl">
             <button
-              onClick={() => setPortalMode('employee')}
+              onClick={() => handleSwitchPortal('employee')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 portalMode === 'employee'
                   ? 'bg-indigo-600 text-white shadow-xs'
@@ -49,7 +73,7 @@ export default function Home() {
             </button>
 
             <button
-              onClick={() => setPortalMode('admin')}
+              onClick={() => handleSwitchPortal('admin')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 portalMode === 'admin'
                   ? 'bg-indigo-600 text-white shadow-xs'
@@ -69,7 +93,7 @@ export default function Home() {
           <EmployeeDashboard
             currentEmployee={currentEmployee}
             onUpdateEmployee={handleUpdateEmployee}
-            onSwitchToAdmin={() => setPortalMode('admin')}
+            onSwitchToAdmin={() => handleSwitchPortal('admin')}
           />
         ) : (
           <HRAdminDashboard />

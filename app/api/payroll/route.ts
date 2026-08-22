@@ -6,9 +6,15 @@ import {
   calculateProRatedPay 
 } from '@/lib/admin/payroll-helpers';
 import { EmployeePayrollRecord, PayrollSummaryMetrics } from '@/types/admin-payroll';
+import { requireAdmin } from '@/lib/auth';
+import { safeErrorResponse } from '@/lib/security';
 
 export async function GET(request: NextRequest) {
   try {
+    // Strictly require Administrator role to view company-wide payroll records
+    const auth = requireAdmin(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || undefined;
     const department = searchParams.get('department') || undefined;
@@ -23,12 +29,10 @@ export async function GET(request: NextRequest) {
 
     // Build authoritative payroll records
     const records: EmployeePayrollRecord[] = employees.map(emp => {
-      // Determine monthly base wage in INR (convert USD numbers or standard INR range)
       let monthlyBase = 125000;
       if (emp.salaryStructure?.annualBaseSalary) {
-        // e.g. If annual is 145000 USD, in INR scale we map it to standard monthly base like ₹1,20,000
         monthlyBase = Math.round(emp.salaryStructure.annualBaseSalary / 12);
-        if (monthlyBase < 30000) monthlyBase = 85000; // minimum benchmark
+        if (monthlyBase < 30000) monthlyBase = 85000;
       }
 
       const breakdown = emp.salaryStructure?.breakdown;
@@ -45,7 +49,7 @@ export async function GET(request: NextRequest) {
       const isAbsent = emp.status === 'On Leave' && !leaves.some(l => l.employeeId === emp.id && l.status === 'Approved');
       const unapprovedAbsenceDays = isAbsent ? 2 : 0;
       const unpaidLeaves = leaves.filter(l => l.employeeId === emp.id && l.leaveType === 'Unpaid Leave' && l.status === 'Approved')
-        .reduce((sum, l) => sum + l.allocationDays, 0);
+        .reduce((sum, l) => sum + (l.allocationDays || (l as any).daysCount || 0), 0);
 
       const payableDays = calculatePayableDays(totalWorkingDays, unapprovedAbsenceDays, unpaidLeaves);
 
@@ -98,11 +102,7 @@ export async function GET(request: NextRequest) {
       data: records
     });
   } catch (error) {
-    console.error('Error fetching payroll records:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch payroll records' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch payroll records');
   }
 }
 

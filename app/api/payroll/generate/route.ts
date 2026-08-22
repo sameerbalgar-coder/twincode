@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployees } from '@/lib/db';
 import { PayrollGeneratePayload } from '@/types/admin-payroll';
+import { requireAdmin } from '@/lib/auth';
+import { safeErrorResponse } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
   try {
+    // Only Administrators can trigger payroll batch generation
+    const auth = requireAdmin(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     let payload: PayrollGeneratePayload = {
       cycle: 'August 2026',
       disbursementDate: new Date().toISOString().split('T')[0]
@@ -25,11 +31,7 @@ export async function POST(request: NextRequest) {
       processedEmployeesCount: employees.length
     });
   } catch (error) {
-    console.error('Error generating payroll batch:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to generate payroll batch' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to generate payroll batch');
   }
 }
 

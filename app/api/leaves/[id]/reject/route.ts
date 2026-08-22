@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rejectLeaveRequest } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
+import { safeErrorResponse } from '@/lib/security';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -7,6 +9,10 @@ interface RouteContext {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
+    // Strictly require Admin role to reject leaves
+    const auth = requireAdmin(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     const { id } = await context.params;
     let adminRemarks: string | undefined;
 
@@ -32,11 +38,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       data: updated
     });
   } catch (error) {
-    console.error('Error rejecting leave:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to reject leave request' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to reject leave request');
   }
 }
 

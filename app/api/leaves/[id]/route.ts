@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateLeaveStatus } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
+import { safeErrorResponse } from '@/lib/security';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -7,6 +9,10 @@ interface RouteContext {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
+    // Only Admins can modify leave status
+    const auth = requireAdmin(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     const { id } = await context.params;
     const body = await request.json();
     const { status, adminRemarks } = body;
@@ -29,11 +35,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
-    console.error('Error updating leave status:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to update leave status' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to update leave status');
   }
 }
 

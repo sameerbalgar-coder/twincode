@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeById, updateEmployee } from '@/lib/db';
 import { calculateSalaryBreakdown, validateSalaryStructure } from '@/lib/admin/payroll-helpers';
 import { SalaryComponentConfig } from '@/types/admin-payroll';
+import { requireAuth, requireAdmin } from '@/lib/auth';
+import { safeErrorResponse } from '@/lib/security';
 
 interface RouteContext {
   params: Promise<{ employeeId: string }>;
@@ -9,7 +11,20 @@ interface RouteContext {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    const auth = requireAuth(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+    const { session } = auth;
+
     const { employeeId } = await context.params;
+
+    // IDOR Protection: Employee can only view their own salary structure
+    if (session.role === 'employee' && session.employeeId !== employeeId) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: You cannot inspect another employee\'s compensation record.' },
+        { status: 403 }
+      );
+    }
+
     const employee = await getEmployeeById(employeeId);
 
     if (!employee) {
@@ -41,16 +56,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
     });
   } catch (error) {
-    console.error('Error fetching employee salary structure:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch salary structure' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch salary structure');
   }
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
+    // Only Administrators can modify employee salary structures
+    const auth = requireAdmin(request);
+    if ('errorResponse' in auth) return auth.errorResponse;
+
     const { employeeId } = await context.params;
     const body = await request.json() as SalaryComponentConfig;
 
@@ -109,11 +124,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       data: calculated
     });
   } catch (error) {
-    console.error('Error updating salary structure:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to update salary structure' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to update salary structure');
   }
 }
 
