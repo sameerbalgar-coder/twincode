@@ -910,7 +910,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                 <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
                   <span>Monthly Payroll Component Breakdown</span>
                   <span className="text-emerald-700 font-extrabold text-sm">
-                    Net Take-Home: ${formData.salaryStructure?.breakdown.netMonthlySalary.toLocaleString()} / mo
+                    Net Take-Home: ${(formData.salaryStructure?.breakdown?.netMonthlySalary || 0).toLocaleString()} / mo
                   </span>
                 </h4>
 
@@ -919,7 +919,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-white p-3 rounded-xl border border-slate-200">
                     <div className="text-[11px] text-slate-500">Basic Pay (50%)</div>
                     <div className="text-sm font-bold text-slate-900 mt-1">
-                      ${formData.salaryStructure?.breakdown.basicPay.toLocaleString()}
+                      ${(formData.salaryStructure?.breakdown?.basicPay || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -927,7 +927,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-white p-3 rounded-xl border border-slate-200">
                     <div className="text-[11px] text-slate-500">House Rent (HRA 25%)</div>
                     <div className="text-sm font-bold text-slate-900 mt-1">
-                      ${formData.salaryStructure?.breakdown.hra.toLocaleString()}
+                      ${(formData.salaryStructure?.breakdown?.hra || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -935,7 +935,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-white p-3 rounded-xl border border-slate-200">
                     <div className="text-[11px] text-slate-500">Special Allowance</div>
                     <div className="text-sm font-bold text-slate-900 mt-1">
-                      ${formData.salaryStructure?.breakdown.specialAllowance.toLocaleString()}
+                      ${(formData.salaryStructure?.breakdown?.specialAllowance || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -943,7 +943,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-white p-3 rounded-xl border border-slate-200">
                     <div className="text-[11px] text-slate-500">Performance Bonus</div>
                     <div className="text-sm font-bold text-slate-900 mt-1">
-                      ${formData.salaryStructure?.breakdown.performanceBonus.toLocaleString()}
+                      ${(formData.salaryStructure?.breakdown?.performanceBonus || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -951,7 +951,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-rose-50/60 p-3 rounded-xl border border-rose-100">
                     <div className="text-[11px] text-rose-700">401(k) / PF (Deduction)</div>
                     <div className="text-sm font-bold text-rose-900 mt-1">
-                      -${formData.salaryStructure?.breakdown.providentFundOr401k.toLocaleString()}
+                      -${(formData.salaryStructure?.breakdown?.providentFundOr401k || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -959,7 +959,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-rose-50/60 p-3 rounded-xl border border-rose-100">
                     <div className="text-[11px] text-rose-700">Federal/State Tax</div>
                     <div className="text-sm font-bold text-rose-900 mt-1">
-                      -${formData.salaryStructure?.breakdown.taxDeduction.toLocaleString()}
+                      -${(formData.salaryStructure?.breakdown?.taxDeduction || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -967,7 +967,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-rose-50/60 p-3 rounded-xl border border-rose-100">
                     <div className="text-[11px] text-rose-700">Health Insurance</div>
                     <div className="text-sm font-bold text-rose-900 mt-1">
-                      -${formData.salaryStructure?.breakdown.healthInsuranceDeduction.toLocaleString()}
+                      -${(formData.salaryStructure?.breakdown?.healthInsuranceDeduction || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -975,7 +975,7 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                   <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
                     <div className="text-[11px] text-emerald-800 font-semibold">Net Disbursed</div>
                     <div className="text-sm font-extrabold text-emerald-950 mt-1">
-                      ${formData.salaryStructure?.breakdown.netMonthlySalary.toLocaleString()}
+                      ${(formData.salaryStructure?.breakdown?.netMonthlySalary || 0).toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -998,7 +998,12 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                         ...formData,
                         salaryStructure: {
                           ...formData.salaryStructure!,
-                          bankDetails: { ...formData.salaryStructure!.bankDetails, bankName: e.target.value }
+                          bankDetails: { 
+                            bankName: e.target.value,
+                            accountNumber: formData.salaryStructure?.bankDetails?.accountNumber,
+                            routingOrIfsc: formData.salaryStructure?.bankDetails?.routingOrIfsc,
+                            accountType: formData.salaryStructure?.bankDetails?.accountType
+                          }
                         }
                       })}
                       placeholder="e.g. JPMorgan Chase"
@@ -1016,7 +1021,12 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                         ...formData,
                         salaryStructure: {
                           ...formData.salaryStructure!,
-                          bankDetails: { ...formData.salaryStructure!.bankDetails, accountNumber: e.target.value }
+                          bankDetails: { 
+                            bankName: formData.salaryStructure?.bankDetails?.bankName || '', 
+                            accountNumber: e.target.value,
+                            routingOrIfsc: formData.salaryStructure?.bankDetails?.routingOrIfsc,
+                            accountType: formData.salaryStructure?.bankDetails?.accountType
+                          }
                         }
                       })}
                       placeholder="•••••••• 1234"
@@ -1034,7 +1044,12 @@ export const EmployeeManagementModal: React.FC<EmployeeManagementModalProps> = (
                         ...formData,
                         salaryStructure: {
                           ...formData.salaryStructure!,
-                          bankDetails: { ...formData.salaryStructure!.bankDetails, routingOrIfsc: e.target.value }
+                          bankDetails: { 
+                            bankName: formData.salaryStructure?.bankDetails?.bankName || '', 
+                            accountNumber: formData.salaryStructure?.bankDetails?.accountNumber,
+                            routingOrIfsc: e.target.value,
+                            accountType: formData.salaryStructure?.bankDetails?.accountType
+                          }
                         }
                       })}
                       placeholder="021000021"

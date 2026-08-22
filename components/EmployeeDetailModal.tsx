@@ -2,29 +2,17 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { 
-  X, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  Briefcase, 
-  Users, 
-  Edit3, 
-  FileText, 
-  DollarSign,
-  ExternalLink,
-  ShieldCheck
-} from 'lucide-react';
 import { Employee } from '../types/hrms';
+import { EmployeeProfileView } from './EmployeeProfileView';
+import { X, ExternalLink, Users } from 'lucide-react';
 
 interface EmployeeDetailModalProps {
   employee: Employee | null;
   isOpen: boolean;
   onClose: () => void;
-  onFocusEmployee: (employee: Employee) => void;
-  onEditEmployee?: (employee: Employee) => void;
+  onFocusEmployee?: (emp: Employee) => void;
+  onUpdateEmployee?: (emp: Employee) => void;
+  onEditEmployee?: (emp: Employee) => void;
 }
 
 export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
@@ -32,174 +20,78 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
   isOpen,
   onClose,
   onFocusEmployee,
+  onUpdateEmployee,
   onEditEmployee
 }) => {
   if (!isOpen || !employee) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+      
+      {/* Click outside backdrop */}
+      <div className="fixed inset-0" onClick={onClose} />
+
+      {/* Modal Dialog Card */}
+      <div className="relative bg-slate-50 w-full max-w-5xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8 z-10 max-h-[90vh] flex flex-col">
         
-        {/* Banner Header */}
-        <div className="relative h-28 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 p-4 flex justify-end">
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Profile Card Overlay */}
-        <div className="px-6 pb-6 pt-0 relative">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-12 mb-4">
-            <div className="flex items-end gap-3.5">
-              <img
-                src={employee.avatar}
-                alt={employee.name}
-                className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white shadow-md bg-white"
-              />
-              <div className="pb-1">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-slate-900">{employee.name}</h2>
-                  <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">
-                    {employee.id}
-                  </span>
-                </div>
-                <p className="text-sm font-medium text-indigo-600">{employee.role}</p>
-              </div>
+        {/* Modal Top Bar */}
+        <div className="px-6 py-3.5 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+              DF
             </div>
+            <div>
+              <span className="text-xs font-extrabold text-slate-900">Dayflow 360° Personnel Dossier</span>
+              <span className="text-[10px] text-slate-400 block font-mono">ID: {employee.id}</span>
+            </div>
+          </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link
-                href={`/admin/profile/${employee.id}`}
-                onClick={onClose}
-                className="px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
-              >
-                <ExternalLink className="w-3.5 h-3.5" /> Full Admin Dossier
-              </Link>
-              
-              {onEditEmployee && (
-                <button
-                  onClick={() => {
-                    onClose();
-                    onEditEmployee(employee);
-                  }}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <Edit3 className="w-3.5 h-3.5" /> Quick Edit
-                </button>
-              )}
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/admin/profile/${employee.id}`}
+              onClick={onClose}
+              className="hidden sm:flex px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors cursor-pointer items-center gap-1.5"
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> Full Admin Dossier
+            </Link>
 
+            {onFocusEmployee && (
               <button
                 onClick={() => {
                   onFocusEmployee(employee);
                   onClose();
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
               >
-                <Users className="w-3.5 h-3.5" /> Scope Dashboard
+                <Users className="w-3.5 h-3.5" /> Focus In Portal
               </button>
-            </div>
+            )}
+
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              title="Close modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
+        </div>
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {/* Contact & Organization */}
-            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2.5">
-              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Employment & Contact</h4>
-              
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{employee.email}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{employee.phone}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{employee.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{employee.department} • {employee.employmentType}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Joined: {employee.joinDate}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Attendance & Leave Quick Stats */}
-            <div className="space-y-3">
-              {/* Today's Status */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-slate-500 font-medium">Status Today</div>
-                  <div className="font-bold text-slate-900 text-sm">{employee.status}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-slate-500 font-medium">Check-in / Out</div>
-                  <span className="text-xs font-semibold text-indigo-600">
-                    {employee.attendanceToday.checkIn || '--'} - {employee.attendanceToday.checkOut || '--'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Leave Balances */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Leave Balances (2026)</h4>
-                <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                  <div className="bg-white p-2 rounded-xl border border-slate-100">
-                    <div className="text-[11px] text-slate-500">Paid Leave</div>
-                    <div className="font-bold text-indigo-600 text-sm">
-                      {employee.leaveBalance.paid.total - employee.leaveBalance.paid.used} / {employee.leaveBalance.paid.total} left
-                    </div>
-                  </div>
-                  <div className="bg-white p-2 rounded-xl border border-slate-100">
-                    <div className="text-[11px] text-slate-500">Casual Leave</div>
-                    <div className="font-bold text-emerald-600 text-sm">
-                      {employee.leaveBalance.casual.total - employee.leaveBalance.casual.used} / {employee.leaveBalance.casual.total} left
-                    </div>
-                  </div>
-                  <div className="bg-white p-2 rounded-xl border border-slate-100">
-                    <div className="text-[11px] text-slate-500">Sick Leave</div>
-                    <div className="font-bold text-amber-600 text-sm">
-                      {employee.leaveBalance.sick.total - employee.leaveBalance.sick.used} / {employee.leaveBalance.sick.total} left
-                    </div>
-                  </div>
-                  <div className="bg-white p-2 rounded-xl border border-slate-100">
-                    <div className="text-[11px] text-slate-500">Emergency</div>
-                    <div className="font-bold text-purple-600 text-sm">
-                      {employee.leaveBalance.emergency.total - employee.leaveBalance.emergency.used} / {employee.leaveBalance.emergency.total} left
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Skills & Competencies */}
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Skills & Tags</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {employee.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="text-[11px] font-medium bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
+        {/* Modal Scrollable Body */}
+        <div className="p-6 overflow-y-auto flex-1">
+          <EmployeeProfileView
+            employee={employee}
+            onUpdateProfile={(updated) => {
+              if (onUpdateEmployee) {
+                onUpdateEmployee(updated);
+              }
+            }}
+            showBackButton={false}
+          />
         </div>
 
       </div>
+
     </div>
   );
 };

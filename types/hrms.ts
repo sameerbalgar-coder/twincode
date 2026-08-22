@@ -1,6 +1,6 @@
 export type EmployeeStatus = 'Active' | 'On Leave' | 'Remote' | 'Probation' | 'Terminated';
 
-export type EmploymentType = 'Full-time' | 'Part-time' | 'Contract' | 'Intern';
+export type EmploymentType = 'Full-time' | 'Part-time' | 'Contract' | 'Intern' | 'Full-Time Regular';
 
 export type Department = 
   | 'Engineering'
@@ -31,19 +31,29 @@ export type DocumentType =
   | 'Tax Document (W-4 / Form 16)'
   | 'Non-Disclosure Agreement (NDA)'
   | 'Educational Degree'
-  | 'Background Verification';
+  | 'Background Verification'
+  | 'Contract'
+  | 'Identity'
+  | 'Tax'
+  | 'Education'
+  | 'Certificates';
 
-export type DocumentStatus = 'Verified' | 'Pending Review' | 'Rejected';
+export type DocumentStatus = 'Verified' | 'Pending Review' | 'Rejected' | 'Required';
 
 export interface DocumentRecord {
   id: string;
-  name: string;
-  type: DocumentType;
+  name?: string;
+  title?: string;
+  type?: DocumentType;
+  category?: DocumentType;
+  fileName?: string;
   fileSize: string;
   uploadDate: string;
   fileUrl?: string;
   status: DocumentStatus;
 }
+
+export type EmployeeDocument = DocumentRecord;
 
 export interface EmergencyContact {
   name: string;
@@ -53,39 +63,94 @@ export interface EmergencyContact {
 }
 
 export interface PersonalData {
-  dateOfBirth: string;
-  gender: 'Male' | 'Female' | 'Non-binary' | 'Prefer not to say';
-  maritalStatus: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  dateOfBirth?: string;
+  dob?: string;
+  gender: string;
+  maritalStatus: string;
   bloodGroup: string;
   nationality: string;
-  residentialAddress: string;
+  residentialAddress?: string;
   emergencyContact: EmergencyContact;
 }
 
+export type PersonalDetails = PersonalData;
+
 export interface SalaryBreakdown {
-  basicPay: number; // e.g. 50% of monthly
-  hra: number; // House Rent Allowance (25%)
-  specialAllowance: number; // 15%
-  performanceBonus: number; // monthly accrual
-  providentFundOr401k: number; // deduction
-  taxDeduction: number; // deduction
-  healthInsuranceDeduction: number; // deduction
-  netMonthlySalary: number; // take-home
+  basicPay?: number | string;
+  hra?: number | string;
+  specialAllowance?: number | string;
+  performanceBonus?: number | string;
+  providentFundOr401k?: number | string;
+  pfDeductions?: string;
+  taxDeduction?: number | string;
+  taxDeductions?: string;
+  healthInsuranceDeduction?: number | string;
+  netMonthlySalary?: number | string;
+  netMonthlyPay?: string;
 }
 
 export interface BankDetails {
   bankName: string;
-  accountNumber: string;
-  routingOrIfsc: string;
-  accountType: 'Checking' | 'Savings';
+  accountNumber?: string;
+  accountNumberMasked?: string;
+  routingOrIfsc?: string;
+  ifscCode?: string;
+  accountType?: 'Checking' | 'Savings';
 }
 
 export interface SalaryStructure {
-  annualBaseSalary: number;
+  annualBaseSalary?: number;
+  annualCtc?: string;
   currency: string;
-  payFrequency: 'Monthly' | 'Bi-Weekly' | 'Annual';
-  breakdown: SalaryBreakdown;
-  bankDetails: BankDetails;
+  basicSalary?: string;
+  hra?: string;
+  specialAllowance?: string;
+  performanceBonus?: string;
+  pfDeductions?: string;
+  taxDeductions?: string;
+  netMonthlyPay?: string;
+  bankName?: string;
+  accountNumberMasked?: string;
+  ifscCode?: string;
+  payFrequency?: 'Monthly' | 'Bi-Weekly' | 'Annual';
+  paymentFrequency?: 'Monthly' | 'Bi-Weekly';
+  breakdown?: SalaryBreakdown;
+  bankDetails?: BankDetails;
+}
+
+export interface JobDetails {
+  employeeId: string;
+  designation: string;
+  department: Department;
+  reportingManager: string;
+  employmentType: 'Full-Time Regular' | 'Contract' | 'Internship' | 'Part-Time' | string;
+  workLocation: string;
+  joiningDate: string;
+  probationStatus: 'Confirmed' | 'In Probation' | 'Under Review';
+  workEmail: string;
+  workPhone?: string;
+  slackHandle?: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  type: 'attendance' | 'leave' | 'payroll' | 'profile' | 'system' | 'security';
+  title: string;
+  description: string;
+  timestamp: string;
+  iconType?: string;
+  status?: 'success' | 'info' | 'warning';
+}
+
+export interface SystemAlert {
+  id: string;
+  title: string;
+  description: string;
+  severity: 'urgent' | 'warning' | 'info' | 'notice';
+  date: string;
+  actionLabel?: string;
+  actionUrl?: string;
+  dismissible?: boolean;
 }
 
 export interface Employee {
@@ -95,12 +160,13 @@ export interface Employee {
   avatar: string;
   role: string;
   department: Department;
-  employmentType: EmploymentType;
+  employmentType?: EmploymentType;
   status: EmployeeStatus;
   joinDate: string;
-  salary: string; // formatted e.g. "$145,000"
+  salary: string;
   phone: string;
   location: string;
+  address?: string;
   leaveBalance: LeaveBalance;
   attendanceToday: {
     checkIn?: string;
@@ -111,10 +177,13 @@ export interface Employee {
   managerName?: string;
   skills: string[];
   
-  // Full Dossier Extensions:
+  // Full Dossier Extensions
   personalData?: PersonalData;
+  personalDetails?: PersonalData;
+  jobDetails?: JobDetails;
   salaryStructure?: SalaryStructure;
   documents?: DocumentRecord[];
+  activities?: ActivityItem[];
 }
 
 export interface AttendanceRecord {

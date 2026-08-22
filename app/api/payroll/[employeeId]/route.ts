@@ -23,12 +23,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
       ? Math.round(employee.salaryStructure.annualBaseSalary / 12) 
       : 120000;
 
+    const breakdown = employee.salaryStructure?.breakdown;
     const salaryStructure = calculateSalaryBreakdown(baseWage, {
-      basic: employee.salaryStructure?.breakdown.basicPay,
-      hra: employee.salaryStructure?.breakdown.hra,
-      allowances: employee.salaryStructure?.breakdown.specialAllowance,
-      pfDeduction: employee.salaryStructure?.breakdown.providentFundOr401k,
-      taxDeduction: employee.salaryStructure?.breakdown.taxDeduction
+      basic: typeof breakdown?.basicPay === 'number' ? breakdown.basicPay : undefined,
+      hra: typeof breakdown?.hra === 'number' ? breakdown.hra : undefined,
+      allowances: typeof breakdown?.specialAllowance === 'number' ? breakdown.specialAllowance : undefined,
+      pfDeduction: typeof breakdown?.providentFundOr401k === 'number' ? breakdown.providentFundOr401k : undefined,
+      taxDeduction: typeof breakdown?.taxDeduction === 'number' ? breakdown.taxDeduction : undefined
     });
 
     return NextResponse.json({

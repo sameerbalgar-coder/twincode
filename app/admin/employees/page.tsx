@@ -120,7 +120,7 @@ export default function AdminEmployeeDirectoryPage() {
       phone: emp.phone,
       location: emp.location,
       managerName: emp.managerName,
-      employmentType: emp.employmentType,
+      employmentType: emp.employmentType || 'Full-time',
       status: emp.status,
       statusIndicator: getStatusIndicator(emp),
       joinDate: emp.joinDate,

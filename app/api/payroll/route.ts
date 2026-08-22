@@ -31,12 +31,13 @@ export async function GET(request: NextRequest) {
         if (monthlyBase < 30000) monthlyBase = 85000; // minimum benchmark
       }
 
+      const breakdown = emp.salaryStructure?.breakdown;
       const salaryStructure = calculateSalaryBreakdown(monthlyBase, {
-        basic: emp.salaryStructure?.breakdown.basicPay,
-        hra: emp.salaryStructure?.breakdown.hra,
-        allowances: emp.salaryStructure?.breakdown.specialAllowance,
-        pfDeduction: emp.salaryStructure?.breakdown.providentFundOr401k,
-        taxDeduction: emp.salaryStructure?.breakdown.taxDeduction
+        basic: typeof breakdown?.basicPay === 'number' ? breakdown.basicPay : undefined,
+        hra: typeof breakdown?.hra === 'number' ? breakdown.hra : undefined,
+        allowances: typeof breakdown?.specialAllowance === 'number' ? breakdown.specialAllowance : undefined,
+        pfDeduction: typeof breakdown?.providentFundOr401k === 'number' ? breakdown.providentFundOr401k : undefined,
+        taxDeduction: typeof breakdown?.taxDeduction === 'number' ? breakdown.taxDeduction : undefined
       });
 
       // Attendance integration: Unpaid leaves or absences

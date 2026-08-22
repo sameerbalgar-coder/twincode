@@ -692,7 +692,7 @@ export const HRAdminDashboard: React.FC = () => {
                                 <td className="py-3 px-4">
                                   <div className="font-bold text-slate-900">{emp.salary}</div>
                                   <div className="text-[10px] text-slate-400">
-                                    ${(emp.salaryStructure?.breakdown.netMonthlySalary || 7500).toLocaleString()}/mo take-home
+                                    ${(emp.salaryStructure?.breakdown?.netMonthlySalary || 7500).toLocaleString()}/mo take-home
                                   </div>
                                 </td>
                                 <td className="py-3 px-4">
