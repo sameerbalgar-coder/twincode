@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
@@ -23,9 +23,18 @@ export async function GET() {
       );
     }
 
+    const employee = session.user.employee;
+
+    if (!employee) {
+      return NextResponse.json(
+        { success: false, message: "Employee profile not found" },
+        { status: 403 }
+      );
+    }
+
     const attendance = await prisma.attendance.findMany({
       where: {
-        employeeId: session.user.employee.id,
+        employeeId: employee.id,
       },
       orderBy: {
         date: "desc",
@@ -46,7 +55,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const session = await requireAuth();
 
@@ -57,12 +66,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const employee = session.user.employee;
+
+    if (!employee) {
+      return NextResponse.json(
+        { success: false, message: "Employee profile not found" },
+        { status: 403 }
+      );
+    }
+
     const date = today();
 
     const existing = await prisma.attendance.findUnique({
       where: {
         employeeId_date: {
-          employeeId: session.user.employee.id,
+          employeeId: employee.id,
           date,
         },
       },
@@ -80,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     const attendance = await prisma.attendance.create({
       data: {
-        employeeId: session.user.employee.id,
+        employeeId: employee.id,
         date,
         checkIn: new Date(),
         status: "PRESENT",

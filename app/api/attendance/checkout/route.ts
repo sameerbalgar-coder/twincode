@@ -23,10 +23,19 @@ export async function POST() {
       );
     }
 
+    const employee = session.user.employee;
+
+    if (!employee) {
+      return NextResponse.json(
+        { success: false, message: "Employee profile not found" },
+        { status: 403 }
+      );
+    }
+
     const attendance = await prisma.attendance.findUnique({
       where: {
         employeeId_date: {
-          employeeId: session.user.employee.id,
+          employeeId: employee.id,
           date: today(),
         },
       },

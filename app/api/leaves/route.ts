@@ -13,9 +13,18 @@ export async function GET() {
       );
     }
 
+    const employee = session.user.employee;
+
+    if (!employee) {
+      return NextResponse.json(
+        { success: false, message: "Employee profile not found" },
+        { status: 403 }
+      );
+    }
+
     const leaves = await prisma.leaveRequest.findMany({
       where: {
-        employeeId: session.user.employee.id,
+        employeeId: employee.id,
       },
       orderBy: {
         createdAt: "desc",
@@ -61,9 +70,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const employee = session.user.employee;
+
+    if (!employee) {
+      return NextResponse.json(
+        { success: false, message: "Employee profile not found" },
+        { status: 403 }
+      );
+    }
+
     const leave = await prisma.leaveRequest.create({
       data: {
-        employeeId: session.user.employee.id,
+        employeeId: employee.id,
         type,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
