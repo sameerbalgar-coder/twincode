@@ -1,0 +1,1081 @@
+{
+  "employees": [
+    {
+      "id": "EMP-1001",
+      "name": "Sarah Jenkins",
+      "email": "sarah.jenkins@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      "role": "Principal Frontend Architect",
+      "department": "Engineering",
+      "employmentType": "Full-time",
+      "status": "Active",
+      "joinDate": "2022-03-15",
+      "salary": "₹8,10,000",
+      "phone": "+1 (555) 234-5678",
+      "location": "San Francisco, CA (HQ)",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 3
+        },
+        "sick": {
+          "total": 10,
+          "used": 2
+        },
+        "paid": {
+          "total": 20,
+          "used": 6
+        },
+        "emergency": {
+          "total": 5,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "08:52 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 4,
+      "managerName": "Alex Rivera",
+      "skills": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "GraphQL",
+        "Web Architecture"
+      ],
+      "personalData": {
+        "dateOfBirth": "1992-06-18",
+        "gender": "Female",
+        "maritalStatus": "Married",
+        "bloodGroup": "O+",
+        "nationality": "United States",
+        "residentialAddress": "742 Evergreen Terrace, San Francisco, CA 94107",
+        "emergencyContact": {
+          "name": "Michael Jenkins",
+          "relationship": "Spouse",
+          "phone": "+1 (555) 987-6543",
+          "email": "michael.j@gmail.com"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 810000,
+        "currency": "₹",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 33750,
+          "hra": 16875,
+          "specialAllowance": 16875,
+          "performanceBonus": 0,
+          "providentFundOr401k": 4050,
+          "taxDeduction": 6750,
+          "healthInsuranceDeduction": 1500,
+          "netMonthlySalary": 55200
+        },
+        "bankDetails": {
+          "bankName": "HDFC Bank Ltd.",
+          "accountNumber": "•••••••• 4892",
+          "routingOrIfsc": "HDFC0001234",
+          "accountType": "Salary"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-101",
+          "name": "Signed_Employment_Agreement_Sarah_Jenkins.pdf",
+          "type": "Employment Contract",
+          "fileSize": "1.8 MB",
+          "uploadDate": "2022-03-10",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-102",
+          "name": "Passport_Copy_Verified.pdf",
+          "type": "Identity Proof / Passport",
+          "fileSize": "3.4 MB",
+          "uploadDate": "2022-03-12",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-103",
+          "name": "Federal_W4_Tax_Withholding_2026.pdf",
+          "type": "Tax Document (W-4 / Form 16)",
+          "fileSize": "620 KB",
+          "uploadDate": "2026-01-05",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-104",
+          "name": "BS_Computer_Science_Stanford_Degree.pdf",
+          "type": "Educational Degree",
+          "fileSize": "4.1 MB",
+          "uploadDate": "2022-03-11",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1002",
+      "name": "David Chen",
+      "email": "david.chen@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "role": "Lead Product Designer",
+      "department": "UI/UX Design",
+      "employmentType": "Full-time",
+      "status": "Remote",
+      "joinDate": "2021-11-01",
+      "salary": "$130,000",
+      "phone": "+1 (555) 345-6789",
+      "location": "Austin, TX (Remote)",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 5
+        },
+        "sick": {
+          "total": 10,
+          "used": 1
+        },
+        "paid": {
+          "total": 20,
+          "used": 11
+        },
+        "emergency": {
+          "total": 5,
+          "used": 1
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "09:05 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 2,
+      "managerName": "Elena Rostova",
+      "skills": [
+        "Figma",
+        "Design Systems",
+        "UX Research",
+        "Prototyping",
+        "Design Tokens"
+      ],
+      "personalData": {
+        "dateOfBirth": "1990-11-24",
+        "gender": "Male",
+        "maritalStatus": "Single",
+        "bloodGroup": "A+",
+        "nationality": "United States",
+        "residentialAddress": "1204 South Congress Ave, Austin, TX 78704",
+        "emergencyContact": {
+          "name": "Linda Chen",
+          "relationship": "Mother",
+          "phone": "+1 (555) 432-1098"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 130000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 5416,
+          "hra": 2708,
+          "specialAllowance": 1625,
+          "performanceBonus": 1083,
+          "providentFundOr401k": 650,
+          "taxDeduction": 1625,
+          "healthInsuranceDeduction": 320,
+          "netMonthlySalary": 8237
+        },
+        "bankDetails": {
+          "bankName": "Bank of America, N.A.",
+          "accountNumber": "•••••••• 7719",
+          "routingOrIfsc": "111000012",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-201",
+          "name": "Dayflow_Offer_Letter_David_Chen.pdf",
+          "type": "Offer Letter",
+          "fileSize": "890 KB",
+          "uploadDate": "2021-10-20",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-202",
+          "name": "NDA_Confidentiality_Agreement.pdf",
+          "type": "Non-Disclosure Agreement (NDA)",
+          "fileSize": "1.2 MB",
+          "uploadDate": "2021-10-25",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-203",
+          "name": "State_ID_Texas_Verified.pdf",
+          "type": "Identity Proof / Passport",
+          "fileSize": "2.1 MB",
+          "uploadDate": "2021-10-28",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1003",
+      "name": "Amara Okafor",
+      "email": "amara.okafor@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "role": "Director of People Operations",
+      "department": "People Operations",
+      "employmentType": "Full-time",
+      "status": "Active",
+      "joinDate": "2020-08-10",
+      "salary": "$150,000",
+      "phone": "+1 (555) 456-7890",
+      "location": "San Francisco, CA (HQ)",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 2
+        },
+        "sick": {
+          "total": 10,
+          "used": 0
+        },
+        "paid": {
+          "total": 22,
+          "used": 5
+        },
+        "emergency": {
+          "total": 5,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "08:40 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 6,
+      "managerName": "CEO Office",
+      "skills": [
+        "Talent Strategy",
+        "HR Compliance",
+        "Employee Relations",
+        "Org Development",
+        "Payroll"
+      ],
+      "personalData": {
+        "dateOfBirth": "1988-04-12",
+        "gender": "Female",
+        "maritalStatus": "Married",
+        "bloodGroup": "B+",
+        "nationality": "United States",
+        "residentialAddress": "350 Mission St, Apt 18B, San Francisco, CA 94105",
+        "emergencyContact": {
+          "name": "Emeka Okafor",
+          "relationship": "Spouse",
+          "phone": "+1 (555) 876-5432"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 150000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 6250,
+          "hra": 3125,
+          "specialAllowance": 1875,
+          "performanceBonus": 1250,
+          "providentFundOr401k": 750,
+          "taxDeduction": 1875,
+          "healthInsuranceDeduction": 350,
+          "netMonthlySalary": 9525
+        },
+        "bankDetails": {
+          "bankName": "Wells Fargo Bank, N.A.",
+          "accountNumber": "•••••••• 9012",
+          "routingOrIfsc": "121000247",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-301",
+          "name": "Executive_Employment_Agreement.pdf",
+          "type": "Employment Contract",
+          "fileSize": "2.5 MB",
+          "uploadDate": "2020-08-01",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-302",
+          "name": "Passport_US_Amara_Okafor.pdf",
+          "type": "Identity Proof / Passport",
+          "fileSize": "3.1 MB",
+          "uploadDate": "2020-08-02",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1004",
+      "name": "Marcus Vance",
+      "email": "marcus.vance@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      "role": "Senior Backend Engineer",
+      "department": "Engineering",
+      "employmentType": "Full-time",
+      "status": "On Leave",
+      "joinDate": "2023-01-20",
+      "salary": "$138,000",
+      "phone": "+1 (555) 567-8901",
+      "location": "Seattle, WA",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 7
+        },
+        "sick": {
+          "total": 10,
+          "used": 4
+        },
+        "paid": {
+          "total": 18,
+          "used": 9
+        },
+        "emergency": {
+          "total": 5,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "status": "Absent"
+      },
+      "directReportsCount": 0,
+      "managerName": "Alex Rivera",
+      "skills": [
+        "Go",
+        "PostgreSQL",
+        "Docker",
+        "Kubernetes",
+        "Microservices",
+        "Redis"
+      ],
+      "personalData": {
+        "dateOfBirth": "1993-08-30",
+        "gender": "Male",
+        "maritalStatus": "Single",
+        "bloodGroup": "AB+",
+        "nationality": "United States",
+        "residentialAddress": "2201 Westlake Ave, Seattle, WA 98121",
+        "emergencyContact": {
+          "name": "David Vance",
+          "relationship": "Brother",
+          "phone": "+1 (555) 765-4321"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 138000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 5750,
+          "hra": 2875,
+          "specialAllowance": 1725,
+          "performanceBonus": 1150,
+          "providentFundOr401k": 690,
+          "taxDeduction": 1725,
+          "healthInsuranceDeduction": 330,
+          "netMonthlySalary": 8755
+        },
+        "bankDetails": {
+          "bankName": "Citibank, N.A.",
+          "accountNumber": "•••••••• 3341",
+          "routingOrIfsc": "021000089",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-401",
+          "name": "Marcus_Vance_Contract_Signed.pdf",
+          "type": "Employment Contract",
+          "fileSize": "1.9 MB",
+          "uploadDate": "2023-01-15",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-402",
+          "name": "W4_Tax_Document_2026.pdf",
+          "type": "Tax Document (W-4 / Form 16)",
+          "fileSize": "580 KB",
+          "uploadDate": "2026-01-10",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1005",
+      "name": "Elena Rostova",
+      "email": "elena.rostova@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "role": "VP of Product & Strategy",
+      "department": "Product",
+      "employmentType": "Full-time",
+      "status": "Active",
+      "joinDate": "2021-04-12",
+      "salary": "$165,000",
+      "phone": "+1 (555) 678-9012",
+      "location": "San Francisco, CA (HQ)",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 4
+        },
+        "sick": {
+          "total": 10,
+          "used": 1
+        },
+        "paid": {
+          "total": 22,
+          "used": 8
+        },
+        "emergency": {
+          "total": 5,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "08:50 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 8,
+      "managerName": "CEO Office",
+      "skills": [
+        "Roadmapping",
+        "Agile Leadership",
+        "Market Analysis",
+        "SaaS Growth",
+        "Product Strategy"
+      ],
+      "personalData": {
+        "dateOfBirth": "1987-03-14",
+        "gender": "Female",
+        "maritalStatus": "Married",
+        "bloodGroup": "O-",
+        "nationality": "United States",
+        "residentialAddress": "500 Howard St, San Francisco, CA 94105",
+        "emergencyContact": {
+          "name": "Dmitri Rostov",
+          "relationship": "Spouse",
+          "phone": "+1 (555) 654-3210"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 165000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 6875,
+          "hra": 3437,
+          "specialAllowance": 2062,
+          "performanceBonus": 1375,
+          "providentFundOr401k": 825,
+          "taxDeduction": 2062,
+          "healthInsuranceDeduction": 380,
+          "netMonthlySalary": 10482
+        },
+        "bankDetails": {
+          "bankName": "Silicon Valley Bank / First Citizens",
+          "accountNumber": "•••••••• 8820",
+          "routingOrIfsc": "121140399",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-501",
+          "name": "Executive_Product_VP_Contract.pdf",
+          "type": "Employment Contract",
+          "fileSize": "2.8 MB",
+          "uploadDate": "2021-04-05",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-502",
+          "name": "MBA_Harvard_Business_School.pdf",
+          "type": "Educational Degree",
+          "fileSize": "3.6 MB",
+          "uploadDate": "2021-04-08",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1006",
+      "name": "Kavita Patel",
+      "email": "kavita.patel@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+      "role": "Senior Financial Analyst",
+      "department": "Finance",
+      "employmentType": "Full-time",
+      "status": "Active",
+      "joinDate": "2022-09-01",
+      "salary": "$118,000",
+      "phone": "+1 (555) 789-0123",
+      "location": "New York, NY",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 3
+        },
+        "sick": {
+          "total": 10,
+          "used": 1
+        },
+        "paid": {
+          "total": 18,
+          "used": 4
+        },
+        "emergency": {
+          "total": 5,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "09:42 AM",
+        "status": "Late"
+      },
+      "directReportsCount": 1,
+      "managerName": "Jonathan Hayes",
+      "skills": [
+        "Financial Modeling",
+        "Budgeting",
+        "QuickBooks",
+        "Excel Macros",
+        "Forecasting"
+      ],
+      "personalData": {
+        "dateOfBirth": "1994-09-19",
+        "gender": "Female",
+        "maritalStatus": "Single",
+        "bloodGroup": "B+",
+        "nationality": "United States",
+        "residentialAddress": "450 Lexington Ave, New York, NY 10017",
+        "emergencyContact": {
+          "name": "Rajesh Patel",
+          "relationship": "Father",
+          "phone": "+1 (555) 543-2109"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 118000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 4916,
+          "hra": 2458,
+          "specialAllowance": 1475,
+          "performanceBonus": 983,
+          "providentFundOr401k": 590,
+          "taxDeduction": 1475,
+          "healthInsuranceDeduction": 300,
+          "netMonthlySalary": 7467
+        },
+        "bankDetails": {
+          "bankName": "Chase Bank NY Branch",
+          "accountNumber": "•••••••• 6124",
+          "routingOrIfsc": "021000021",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-601",
+          "name": "CPA_Certificate_Kavita_Patel.pdf",
+          "type": "Educational Degree",
+          "fileSize": "2.2 MB",
+          "uploadDate": "2022-08-25",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-602",
+          "name": "Background_Check_Report_Approved.pdf",
+          "type": "Background Verification",
+          "fileSize": "1.4 MB",
+          "uploadDate": "2022-08-28",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1007",
+      "name": "Lucas Morales",
+      "email": "lucas.morales@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+      "role": "Enterprise Account Executive",
+      "department": "Sales & Marketing",
+      "employmentType": "Full-time",
+      "status": "Active",
+      "joinDate": "2023-06-15",
+      "salary": "$110,000 + OTE",
+      "phone": "+1 (555) 890-1234",
+      "location": "Chicago, IL",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 1
+        },
+        "sick": {
+          "total": 10,
+          "used": 0
+        },
+        "paid": {
+          "total": 15,
+          "used": 2
+        },
+        "emergency": {
+          "total": 5,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "09:02 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 0,
+      "managerName": "Rachel Green",
+      "skills": [
+        "HubSpot CRM",
+        "B2B Sales",
+        "Contract Negotiation",
+        "Lead Qualification",
+        "Enterprise SaaS"
+      ],
+      "personalData": {
+        "dateOfBirth": "1991-12-05",
+        "gender": "Male",
+        "maritalStatus": "Married",
+        "bloodGroup": "O+",
+        "nationality": "United States",
+        "residentialAddress": "233 S Wacker Dr, Chicago, IL 60606",
+        "emergencyContact": {
+          "name": "Sofia Morales",
+          "relationship": "Spouse",
+          "phone": "+1 (555) 432-1000"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 110000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 4583,
+          "hra": 2291,
+          "specialAllowance": 1375,
+          "performanceBonus": 1833,
+          "providentFundOr401k": 550,
+          "taxDeduction": 1375,
+          "healthInsuranceDeduction": 310,
+          "netMonthlySalary": 7847
+        },
+        "bankDetails": {
+          "bankName": "PNC Bank, National Association",
+          "accountNumber": "•••••••• 9941",
+          "routingOrIfsc": "071921891",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-701",
+          "name": "Sales_Commission_Structure_Agreement.pdf",
+          "type": "Employment Contract",
+          "fileSize": "1.1 MB",
+          "uploadDate": "2023-06-10",
+          "status": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1008",
+      "name": "Zoe Katsaros",
+      "email": "zoe.katsaros@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      "role": "Junior DevOps Engineer",
+      "department": "Engineering",
+      "employmentType": "Contract",
+      "status": "Probation",
+      "joinDate": "2024-05-10",
+      "salary": "$92,000",
+      "phone": "+1 (555) 901-2345",
+      "location": "San Francisco, CA (HQ)",
+      "leaveBalance": {
+        "casual": {
+          "total": 6,
+          "used": 0
+        },
+        "sick": {
+          "total": 5,
+          "used": 0
+        },
+        "paid": {
+          "total": 10,
+          "used": 0
+        },
+        "emergency": {
+          "total": 3,
+          "used": 0
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "08:35 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 0,
+      "managerName": "Sarah Jenkins",
+      "skills": [
+        "AWS",
+        "Terraform",
+        "CI/CD Pipelines",
+        "Linux",
+        "Bash",
+        "Docker"
+      ],
+      "personalData": {
+        "dateOfBirth": "1998-02-28",
+        "gender": "Female",
+        "maritalStatus": "Single",
+        "bloodGroup": "A-",
+        "nationality": "United States",
+        "residentialAddress": "100 Van Ness Ave, San Francisco, CA 94102",
+        "emergencyContact": {
+          "name": "George Katsaros",
+          "relationship": "Father",
+          "phone": "+1 (555) 321-0987"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 92000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 3833,
+          "hra": 1916,
+          "specialAllowance": 1150,
+          "performanceBonus": 766,
+          "providentFundOr401k": 460,
+          "taxDeduction": 1150,
+          "healthInsuranceDeduction": 280,
+          "netMonthlySalary": 5775
+        },
+        "bankDetails": {
+          "bankName": "Capital One, N.A.",
+          "accountNumber": "•••••••• 2155",
+          "routingOrIfsc": "051405515",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-801",
+          "name": "Offer_Letter_Zoe_Katsaros_Probation.pdf",
+          "type": "Offer Letter",
+          "fileSize": "750 KB",
+          "uploadDate": "2024-05-01",
+          "status": "Verified"
+        },
+        {
+          "id": "DOC-802",
+          "name": "Degree_Certificate_UC_Berkeley.pdf",
+          "type": "Educational Degree",
+          "fileSize": "3.8 MB",
+          "uploadDate": "2024-05-05",
+          "status": "Pending Review"
+        }
+      ]
+    },
+    {
+      "id": "EMP-1009",
+      "name": "Tariq Mansoor",
+      "email": "tariq.mansoor@dayflow.io",
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80",
+      "role": "Customer Success Manager",
+      "department": "Customer Success",
+      "employmentType": "Full-time",
+      "status": "Remote",
+      "joinDate": "2022-07-18",
+      "salary": "$102,000",
+      "phone": "+1 (555) 012-3456",
+      "location": "Denver, CO (Remote)",
+      "leaveBalance": {
+        "casual": {
+          "total": 12,
+          "used": 6
+        },
+        "sick": {
+          "total": 10,
+          "used": 3
+        },
+        "paid": {
+          "total": 18,
+          "used": 8
+        },
+        "emergency": {
+          "total": 5,
+          "used": 1
+        }
+      },
+      "attendanceToday": {
+        "checkIn": "08:58 AM",
+        "status": "On-Time"
+      },
+      "directReportsCount": 3,
+      "managerName": "Elena Rostova",
+      "skills": [
+        "Zendesk",
+        "Client Retention",
+        "Onboarding",
+        "Customer Health Metrics",
+        "Intercom"
+      ],
+      "personalData": {
+        "dateOfBirth": "1991-07-04",
+        "gender": "Male",
+        "maritalStatus": "Married",
+        "bloodGroup": "O+",
+        "nationality": "United States",
+        "residentialAddress": "1700 California St, Denver, CO 80202",
+        "emergencyContact": {
+          "name": "Fatima Mansoor",
+          "relationship": "Spouse",
+          "phone": "+1 (555) 210-9876"
+        }
+      },
+      "salaryStructure": {
+        "annualBaseSalary": 102000,
+        "currency": "$",
+        "payFrequency": "Monthly",
+        "breakdown": {
+          "basicPay": 4250,
+          "hra": 2125,
+          "specialAllowance": 1275,
+          "performanceBonus": 850,
+          "providentFundOr401k": 510,
+          "taxDeduction": 1275,
+          "healthInsuranceDeduction": 300,
+          "netMonthlySalary": 6415
+        },
+        "bankDetails": {
+          "bankName": "US Bank National Association",
+          "accountNumber": "•••••••• 5521",
+          "routingOrIfsc": "102000021",
+          "accountType": "Checking"
+        }
+      },
+      "documents": [
+        {
+          "id": "DOC-901",
+          "name": "Employment_Agreement_Tariq_Mansoor.pdf",
+          "type": "Employment Contract",
+          "fileSize": "1.6 MB",
+          "uploadDate": "2022-07-10",
+          "status": "Verified"
+        }
+      ]
+    }
+  ],
+  "attendanceRecords": [
+    {
+      "id": "ATT-201",
+      "employeeId": "EMP-1008",
+      "employeeName": "Zoe Katsaros",
+      "employeeAvatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      "department": "Engineering",
+      "date": "Today, Aug 22",
+      "checkInTime": "08:35 AM",
+      "checkOutTime": "--",
+      "workHours": "3h 15m (Active)",
+      "status": "On-Time",
+      "ipLocation": "SF HQ Office (192.168.1.42)",
+      "device": "MacBook Pro 16\""
+    },
+    {
+      "id": "ATT-202",
+      "employeeId": "EMP-1003",
+      "employeeName": "Amara Okafor",
+      "employeeAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "department": "People Operations",
+      "date": "Today, Aug 22",
+      "checkInTime": "08:40 AM",
+      "checkOutTime": "--",
+      "workHours": "3h 10m (Active)",
+      "status": "On-Time",
+      "ipLocation": "SF HQ Office (192.168.1.18)",
+      "device": "MacBook Air M2"
+    },
+    {
+      "id": "ATT-203",
+      "employeeId": "EMP-1005",
+      "employeeName": "Elena Rostova",
+      "employeeAvatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "department": "Product",
+      "date": "Today, Aug 22",
+      "checkInTime": "08:50 AM",
+      "checkOutTime": "--",
+      "workHours": "3h 00m (Active)",
+      "status": "On-Time",
+      "ipLocation": "SF HQ Office (192.168.1.55)",
+      "device": "Dell XPS 15"
+    },
+    {
+      "id": "ATT-204",
+      "employeeId": "EMP-1001",
+      "employeeName": "Sarah Jenkins",
+      "employeeAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      "department": "Engineering",
+      "date": "Today, Aug 22",
+      "checkInTime": "08:52 AM",
+      "checkOutTime": "--",
+      "workHours": "2h 58m (Active)",
+      "status": "On-Time",
+      "ipLocation": "SF HQ Office (192.168.1.24)",
+      "device": "MacBook Pro M3"
+    },
+    {
+      "id": "ATT-205",
+      "employeeId": "EMP-1009",
+      "employeeName": "Tariq Mansoor",
+      "employeeAvatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80",
+      "department": "Customer Success",
+      "date": "Today, Aug 22",
+      "checkInTime": "08:58 AM",
+      "checkOutTime": "--",
+      "workHours": "2h 52m (Active)",
+      "status": "Remote",
+      "ipLocation": "Denver VPN (10.8.0.12)",
+      "device": "ThinkPad X1 Carbon"
+    },
+    {
+      "id": "ATT-206",
+      "employeeId": "EMP-1007",
+      "employeeName": "Lucas Morales",
+      "employeeAvatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+      "department": "Sales & Marketing",
+      "date": "Today, Aug 22",
+      "checkInTime": "09:02 AM",
+      "checkOutTime": "--",
+      "workHours": "2h 48m (Active)",
+      "status": "On-Time",
+      "ipLocation": "Chicago Office (192.168.4.10)",
+      "device": "iPad Pro 12.9\" / Mac Mini"
+    },
+    {
+      "id": "ATT-207",
+      "employeeId": "EMP-1002",
+      "employeeName": "David Chen",
+      "employeeAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "department": "UI/UX Design",
+      "date": "Today, Aug 22",
+      "checkInTime": "09:05 AM",
+      "checkOutTime": "--",
+      "workHours": "2h 45m (Active)",
+      "status": "Remote",
+      "ipLocation": "Austin VPN (10.8.0.33)",
+      "device": "Mac Studio M2 Max"
+    },
+    {
+      "id": "ATT-208",
+      "employeeId": "EMP-1006",
+      "employeeName": "Kavita Patel",
+      "employeeAvatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+      "department": "Finance",
+      "date": "Today, Aug 22",
+      "checkInTime": "09:42 AM",
+      "checkOutTime": "--",
+      "workHours": "2h 08m (Active)",
+      "status": "Late",
+      "ipLocation": "NYC Branch (192.168.3.15)",
+      "device": "Surface Laptop 5"
+    }
+  ],
+  "leaveRequests": [
+    {
+      "id": "LV-501",
+      "employeeId": "EMP-1001",
+      "employeeName": "Sarah Jenkins",
+      "employeeAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      "department": "Engineering",
+      "role": "Principal Frontend Architect",
+      "leaveType": "Paid Annual Leave",
+      "startDate": "2026-09-01",
+      "endDate": "2026-09-05",
+      "daysCount": 5,
+      "reason": "Family vacation and personal downtime after Q3 release sprint.",
+      "appliedDate": "2026-08-20",
+      "status": "Pending",
+      "conflictWarning": "Note: Marcus Vance is also scheduled off during that week"
+    },
+    {
+      "id": "LV-502",
+      "employeeId": "EMP-1002",
+      "employeeName": "David Chen",
+      "employeeAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "department": "UI/UX Design",
+      "role": "Lead Product Designer",
+      "leaveType": "Casual Leave",
+      "startDate": "2026-08-25",
+      "endDate": "2026-08-26",
+      "daysCount": 2,
+      "reason": "Attending Figma Config Regional Design Summit in Austin.",
+      "appliedDate": "2026-08-21",
+      "status": "Pending"
+    },
+    {
+      "id": "LV-503",
+      "employeeId": "EMP-1006",
+      "employeeName": "Kavita Patel",
+      "employeeAvatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+      "department": "Finance",
+      "role": "Senior Financial Analyst",
+      "leaveType": "Sick Leave",
+      "startDate": "2026-08-24",
+      "endDate": "2026-08-24",
+      "daysCount": 1,
+      "reason": "Scheduled dental procedure and post-op recovery.",
+      "appliedDate": "2026-08-22",
+      "status": "Pending"
+    },
+    {
+      "id": "LV-504",
+      "employeeId": "EMP-1004",
+      "employeeName": "Marcus Vance",
+      "employeeAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      "department": "Engineering",
+      "role": "Senior Backend Engineer",
+      "leaveType": "Emergency Leave",
+      "startDate": "2026-08-22",
+      "endDate": "2026-08-23",
+      "daysCount": 2,
+      "reason": "Urgent home plumbing repair and personal matter.",
+      "appliedDate": "2026-08-21",
+      "status": "Approved"
+    },
+    {
+      "id": "LV-505",
+      "employeeId": "EMP-1007",
+      "employeeName": "Lucas Morales",
+      "employeeAvatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+      "department": "Sales & Marketing",
+      "role": "Enterprise Account Executive",
+      "leaveType": "Casual Leave",
+      "startDate": "2026-08-15",
+      "endDate": "2026-08-16",
+      "daysCount": 2,
+      "reason": "Family wedding anniversary celebration.",
+      "appliedDate": "2026-08-10",
+      "status": "Approved"
+    }
+  ],
+  "lastUpdated": "2026-08-22T08:38:56.707Z"
+}

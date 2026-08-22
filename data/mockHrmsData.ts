@@ -8,6 +8,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     role: 'Principal Frontend Architect',
     department: 'Engineering',
+    employmentType: 'Full-time',
     status: 'Active',
     joinDate: '2022-03-15',
     salary: '$145,000',
@@ -25,7 +26,76 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 4,
     managerName: 'Alex Rivera',
-    skills: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'GraphQL']
+    skills: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'GraphQL', 'Web Architecture'],
+    personalData: {
+      dateOfBirth: '1992-06-18',
+      gender: 'Female',
+      maritalStatus: 'Married',
+      bloodGroup: 'O+',
+      nationality: 'United States',
+      residentialAddress: '742 Evergreen Terrace, San Francisco, CA 94107',
+      emergencyContact: {
+        name: 'Michael Jenkins',
+        relationship: 'Spouse',
+        phone: '+1 (555) 987-6543',
+        email: 'michael.j@gmail.com'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 145000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 6041,
+        hra: 3020,
+        specialAllowance: 1812,
+        performanceBonus: 1208,
+        providentFundOr401k: 725,
+        taxDeduction: 1812,
+        healthInsuranceDeduction: 350,
+        netMonthlySalary: 9194
+      },
+      bankDetails: {
+        bankName: 'JPMorgan Chase Bank, N.A.',
+        accountNumber: '•••••••• 4892',
+        routingOrIfsc: '021000021',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-101',
+        name: 'Signed_Employment_Agreement_Sarah_Jenkins.pdf',
+        type: 'Employment Contract',
+        fileSize: '1.8 MB',
+        uploadDate: '2022-03-10',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-102',
+        name: 'Passport_Copy_Verified.pdf',
+        type: 'Identity Proof / Passport',
+        fileSize: '3.4 MB',
+        uploadDate: '2022-03-12',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-103',
+        name: 'Federal_W4_Tax_Withholding_2026.pdf',
+        type: 'Tax Document (W-4 / Form 16)',
+        fileSize: '620 KB',
+        uploadDate: '2026-01-05',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-104',
+        name: 'BS_Computer_Science_Stanford_Degree.pdf',
+        type: 'Educational Degree',
+        fileSize: '4.1 MB',
+        uploadDate: '2022-03-11',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1002',
@@ -34,6 +104,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     role: 'Lead Product Designer',
     department: 'UI/UX Design',
+    employmentType: 'Full-time',
     status: 'Remote',
     joinDate: '2021-11-01',
     salary: '$130,000',
@@ -51,7 +122,67 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 2,
     managerName: 'Elena Rostova',
-    skills: ['Figma', 'Design Systems', 'UX Research', 'Prototyping']
+    skills: ['Figma', 'Design Systems', 'UX Research', 'Prototyping', 'Design Tokens'],
+    personalData: {
+      dateOfBirth: '1990-11-24',
+      gender: 'Male',
+      maritalStatus: 'Single',
+      bloodGroup: 'A+',
+      nationality: 'United States',
+      residentialAddress: '1204 South Congress Ave, Austin, TX 78704',
+      emergencyContact: {
+        name: 'Linda Chen',
+        relationship: 'Mother',
+        phone: '+1 (555) 432-1098'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 130000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 5416,
+        hra: 2708,
+        specialAllowance: 1625,
+        performanceBonus: 1083,
+        providentFundOr401k: 650,
+        taxDeduction: 1625,
+        healthInsuranceDeduction: 320,
+        netMonthlySalary: 8237
+      },
+      bankDetails: {
+        bankName: 'Bank of America, N.A.',
+        accountNumber: '•••••••• 7719',
+        routingOrIfsc: '111000012',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-201',
+        name: 'Dayflow_Offer_Letter_David_Chen.pdf',
+        type: 'Offer Letter',
+        fileSize: '890 KB',
+        uploadDate: '2021-10-20',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-202',
+        name: 'NDA_Confidentiality_Agreement.pdf',
+        type: 'Non-Disclosure Agreement (NDA)',
+        fileSize: '1.2 MB',
+        uploadDate: '2021-10-25',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-203',
+        name: 'State_ID_Texas_Verified.pdf',
+        type: 'Identity Proof / Passport',
+        fileSize: '2.1 MB',
+        uploadDate: '2021-10-28',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1003',
@@ -60,6 +191,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     role: 'Director of People Operations',
     department: 'People Operations',
+    employmentType: 'Full-time',
     status: 'Active',
     joinDate: '2020-08-10',
     salary: '$150,000',
@@ -77,7 +209,59 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 6,
     managerName: 'CEO Office',
-    skills: ['Talent Strategy', 'HR Compliance', 'Employee Relations', 'Org Development']
+    skills: ['Talent Strategy', 'HR Compliance', 'Employee Relations', 'Org Development', 'Payroll'],
+    personalData: {
+      dateOfBirth: '1988-04-12',
+      gender: 'Female',
+      maritalStatus: 'Married',
+      bloodGroup: 'B+',
+      nationality: 'United States',
+      residentialAddress: '350 Mission St, Apt 18B, San Francisco, CA 94105',
+      emergencyContact: {
+        name: 'Emeka Okafor',
+        relationship: 'Spouse',
+        phone: '+1 (555) 876-5432'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 150000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 6250,
+        hra: 3125,
+        specialAllowance: 1875,
+        performanceBonus: 1250,
+        providentFundOr401k: 750,
+        taxDeduction: 1875,
+        healthInsuranceDeduction: 350,
+        netMonthlySalary: 9525
+      },
+      bankDetails: {
+        bankName: 'Wells Fargo Bank, N.A.',
+        accountNumber: '•••••••• 9012',
+        routingOrIfsc: '121000247',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-301',
+        name: 'Executive_Employment_Agreement.pdf',
+        type: 'Employment Contract',
+        fileSize: '2.5 MB',
+        uploadDate: '2020-08-01',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-302',
+        name: 'Passport_US_Amara_Okafor.pdf',
+        type: 'Identity Proof / Passport',
+        fileSize: '3.1 MB',
+        uploadDate: '2020-08-02',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1004',
@@ -86,6 +270,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     role: 'Senior Backend Engineer',
     department: 'Engineering',
+    employmentType: 'Full-time',
     status: 'On Leave',
     joinDate: '2023-01-20',
     salary: '$138,000',
@@ -102,7 +287,59 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 0,
     managerName: 'Alex Rivera',
-    skills: ['Go', 'PostgreSQL', 'Docker', 'Kubernetes', 'Microservices']
+    skills: ['Go', 'PostgreSQL', 'Docker', 'Kubernetes', 'Microservices', 'Redis'],
+    personalData: {
+      dateOfBirth: '1993-08-30',
+      gender: 'Male',
+      maritalStatus: 'Single',
+      bloodGroup: 'AB+',
+      nationality: 'United States',
+      residentialAddress: '2201 Westlake Ave, Seattle, WA 98121',
+      emergencyContact: {
+        name: 'David Vance',
+        relationship: 'Brother',
+        phone: '+1 (555) 765-4321'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 138000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 5750,
+        hra: 2875,
+        specialAllowance: 1725,
+        performanceBonus: 1150,
+        providentFundOr401k: 690,
+        taxDeduction: 1725,
+        healthInsuranceDeduction: 330,
+        netMonthlySalary: 8755
+      },
+      bankDetails: {
+        bankName: 'Citibank, N.A.',
+        accountNumber: '•••••••• 3341',
+        routingOrIfsc: '021000089',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-401',
+        name: 'Marcus_Vance_Contract_Signed.pdf',
+        type: 'Employment Contract',
+        fileSize: '1.9 MB',
+        uploadDate: '2023-01-15',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-402',
+        name: 'W4_Tax_Document_2026.pdf',
+        type: 'Tax Document (W-4 / Form 16)',
+        fileSize: '580 KB',
+        uploadDate: '2026-01-10',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1005',
@@ -111,6 +348,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     role: 'VP of Product & Strategy',
     department: 'Product',
+    employmentType: 'Full-time',
     status: 'Active',
     joinDate: '2021-04-12',
     salary: '$165,000',
@@ -128,7 +366,59 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 8,
     managerName: 'CEO Office',
-    skills: ['Roadmapping', 'Agile Leadership', 'Market Analysis', 'SaaS Growth']
+    skills: ['Roadmapping', 'Agile Leadership', 'Market Analysis', 'SaaS Growth', 'Product Strategy'],
+    personalData: {
+      dateOfBirth: '1987-03-14',
+      gender: 'Female',
+      maritalStatus: 'Married',
+      bloodGroup: 'O-',
+      nationality: 'United States',
+      residentialAddress: '500 Howard St, San Francisco, CA 94105',
+      emergencyContact: {
+        name: 'Dmitri Rostov',
+        relationship: 'Spouse',
+        phone: '+1 (555) 654-3210'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 165000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 6875,
+        hra: 3437,
+        specialAllowance: 2062,
+        performanceBonus: 1375,
+        providentFundOr401k: 825,
+        taxDeduction: 2062,
+        healthInsuranceDeduction: 380,
+        netMonthlySalary: 10482
+      },
+      bankDetails: {
+        bankName: 'Silicon Valley Bank / First Citizens',
+        accountNumber: '•••••••• 8820',
+        routingOrIfsc: '121140399',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-501',
+        name: 'Executive_Product_VP_Contract.pdf',
+        type: 'Employment Contract',
+        fileSize: '2.8 MB',
+        uploadDate: '2021-04-05',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-502',
+        name: 'MBA_Harvard_Business_School.pdf',
+        type: 'Educational Degree',
+        fileSize: '3.6 MB',
+        uploadDate: '2021-04-08',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1006',
@@ -137,6 +427,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
     role: 'Senior Financial Analyst',
     department: 'Finance',
+    employmentType: 'Full-time',
     status: 'Active',
     joinDate: '2022-09-01',
     salary: '$118,000',
@@ -154,7 +445,59 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 1,
     managerName: 'Jonathan Hayes',
-    skills: ['Financial Modeling', 'Budgeting', 'QuickBooks', 'Excel Macros']
+    skills: ['Financial Modeling', 'Budgeting', 'QuickBooks', 'Excel Macros', 'Forecasting'],
+    personalData: {
+      dateOfBirth: '1994-09-19',
+      gender: 'Female',
+      maritalStatus: 'Single',
+      bloodGroup: 'B+',
+      nationality: 'United States',
+      residentialAddress: '450 Lexington Ave, New York, NY 10017',
+      emergencyContact: {
+        name: 'Rajesh Patel',
+        relationship: 'Father',
+        phone: '+1 (555) 543-2109'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 118000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 4916,
+        hra: 2458,
+        specialAllowance: 1475,
+        performanceBonus: 983,
+        providentFundOr401k: 590,
+        taxDeduction: 1475,
+        healthInsuranceDeduction: 300,
+        netMonthlySalary: 7467
+      },
+      bankDetails: {
+        bankName: 'Chase Bank NY Branch',
+        accountNumber: '•••••••• 6124',
+        routingOrIfsc: '021000021',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-601',
+        name: 'CPA_Certificate_Kavita_Patel.pdf',
+        type: 'Educational Degree',
+        fileSize: '2.2 MB',
+        uploadDate: '2022-08-25',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-602',
+        name: 'Background_Check_Report_Approved.pdf',
+        type: 'Background Verification',
+        fileSize: '1.4 MB',
+        uploadDate: '2022-08-28',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1007',
@@ -163,6 +506,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
     role: 'Enterprise Account Executive',
     department: 'Sales & Marketing',
+    employmentType: 'Full-time',
     status: 'Active',
     joinDate: '2023-06-15',
     salary: '$110,000 + OTE',
@@ -180,7 +524,51 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 0,
     managerName: 'Rachel Green',
-    skills: ['HubSpot CRM', 'B2B Sales', 'Contract Negotiation', 'Lead Qualification']
+    skills: ['HubSpot CRM', 'B2B Sales', 'Contract Negotiation', 'Lead Qualification', 'Enterprise SaaS'],
+    personalData: {
+      dateOfBirth: '1991-12-05',
+      gender: 'Male',
+      maritalStatus: 'Married',
+      bloodGroup: 'O+',
+      nationality: 'United States',
+      residentialAddress: '233 S Wacker Dr, Chicago, IL 60606',
+      emergencyContact: {
+        name: 'Sofia Morales',
+        relationship: 'Spouse',
+        phone: '+1 (555) 432-1000'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 110000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 4583,
+        hra: 2291,
+        specialAllowance: 1375,
+        performanceBonus: 1833,
+        providentFundOr401k: 550,
+        taxDeduction: 1375,
+        healthInsuranceDeduction: 310,
+        netMonthlySalary: 7847
+      },
+      bankDetails: {
+        bankName: 'PNC Bank, National Association',
+        accountNumber: '•••••••• 9941',
+        routingOrIfsc: '071921891',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-701',
+        name: 'Sales_Commission_Structure_Agreement.pdf',
+        type: 'Employment Contract',
+        fileSize: '1.1 MB',
+        uploadDate: '2023-06-10',
+        status: 'Verified'
+      }
+    ]
   },
   {
     id: 'EMP-1008',
@@ -189,6 +577,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
     role: 'Junior DevOps Engineer',
     department: 'Engineering',
+    employmentType: 'Contract',
     status: 'Probation',
     joinDate: '2024-05-10',
     salary: '$92,000',
@@ -206,7 +595,59 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 0,
     managerName: 'Sarah Jenkins',
-    skills: ['AWS', 'Terraform', 'CI/CD Pipelines', 'Linux', 'Bash']
+    skills: ['AWS', 'Terraform', 'CI/CD Pipelines', 'Linux', 'Bash', 'Docker'],
+    personalData: {
+      dateOfBirth: '1998-02-28',
+      gender: 'Female',
+      maritalStatus: 'Single',
+      bloodGroup: 'A-',
+      nationality: 'United States',
+      residentialAddress: '100 Van Ness Ave, San Francisco, CA 94102',
+      emergencyContact: {
+        name: 'George Katsaros',
+        relationship: 'Father',
+        phone: '+1 (555) 321-0987'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 92000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 3833,
+        hra: 1916,
+        specialAllowance: 1150,
+        performanceBonus: 766,
+        providentFundOr401k: 460,
+        taxDeduction: 1150,
+        healthInsuranceDeduction: 280,
+        netMonthlySalary: 5775
+      },
+      bankDetails: {
+        bankName: 'Capital One, N.A.',
+        accountNumber: '•••••••• 2155',
+        routingOrIfsc: '051405515',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-801',
+        name: 'Offer_Letter_Zoe_Katsaros_Probation.pdf',
+        type: 'Offer Letter',
+        fileSize: '750 KB',
+        uploadDate: '2024-05-01',
+        status: 'Verified'
+      },
+      {
+        id: 'DOC-802',
+        name: 'Degree_Certificate_UC_Berkeley.pdf',
+        type: 'Educational Degree',
+        fileSize: '3.8 MB',
+        uploadDate: '2024-05-05',
+        status: 'Pending Review'
+      }
+    ]
   },
   {
     id: 'EMP-1009',
@@ -215,6 +656,7 @@ export const mockEmployees: Employee[] = [
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
     role: 'Customer Success Manager',
     department: 'Customer Success',
+    employmentType: 'Full-time',
     status: 'Remote',
     joinDate: '2022-07-18',
     salary: '$102,000',
@@ -232,7 +674,51 @@ export const mockEmployees: Employee[] = [
     },
     directReportsCount: 3,
     managerName: 'Elena Rostova',
-    skills: ['Zendesk', 'Client Retention', 'Onboarding', 'Customer Health Metrics']
+    skills: ['Zendesk', 'Client Retention', 'Onboarding', 'Customer Health Metrics', 'Intercom'],
+    personalData: {
+      dateOfBirth: '1991-07-04',
+      gender: 'Male',
+      maritalStatus: 'Married',
+      bloodGroup: 'O+',
+      nationality: 'United States',
+      residentialAddress: '1700 California St, Denver, CO 80202',
+      emergencyContact: {
+        name: 'Fatima Mansoor',
+        relationship: 'Spouse',
+        phone: '+1 (555) 210-9876'
+      }
+    },
+    salaryStructure: {
+      annualBaseSalary: 102000,
+      currency: '$',
+      payFrequency: 'Monthly',
+      breakdown: {
+        basicPay: 4250,
+        hra: 2125,
+        specialAllowance: 1275,
+        performanceBonus: 850,
+        providentFundOr401k: 510,
+        taxDeduction: 1275,
+        healthInsuranceDeduction: 300,
+        netMonthlySalary: 6415
+      },
+      bankDetails: {
+        bankName: 'US Bank National Association',
+        accountNumber: '•••••••• 5521',
+        routingOrIfsc: '102000021',
+        accountType: 'Checking'
+      }
+    },
+    documents: [
+      {
+        id: 'DOC-901',
+        name: 'Employment_Agreement_Tariq_Mansoor.pdf',
+        type: 'Employment Contract',
+        fileSize: '1.6 MB',
+        uploadDate: '2022-07-10',
+        status: 'Verified'
+      }
+    ]
   }
 ];
 
@@ -450,4 +936,3 @@ export const mockHRMetrics: HRMetrics = {
   attendanceRate: 94.6,
   newHiresThisMonth: 6
 };
-

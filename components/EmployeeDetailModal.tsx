@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { 
   X, 
   Mail, 
@@ -9,7 +10,12 @@ import {
   Calendar, 
   Clock, 
   Briefcase, 
-  Users
+  Users, 
+  Edit3, 
+  FileText, 
+  DollarSign,
+  ExternalLink,
+  ShieldCheck
 } from 'lucide-react';
 import { Employee } from '../types/hrms';
 
@@ -18,13 +24,15 @@ interface EmployeeDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onFocusEmployee: (employee: Employee) => void;
+  onEditEmployee?: (employee: Employee) => void;
 }
 
 export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
   employee,
   isOpen,
   onClose,
-  onFocusEmployee
+  onFocusEmployee,
+  onEditEmployee
 }) => {
   if (!isOpen || !employee) return null;
 
@@ -62,7 +70,27 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link
+                href={`/admin/profile/${employee.id}`}
+                onClick={onClose}
+                className="px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Full Admin Dossier
+              </Link>
+              
+              {onEditEmployee && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onEditEmployee(employee);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Edit3 className="w-3.5 h-3.5" /> Quick Edit
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   onFocusEmployee(employee);
@@ -70,7 +98,7 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                 }}
                 className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                <Users className="w-3.5 h-3.5" /> Focus on Dashboard
+                <Users className="w-3.5 h-3.5" /> Scope Dashboard
               </button>
             </div>
           </div>
@@ -82,10 +110,6 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
               <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Employment & Contact</h4>
               
               <div className="space-y-1.5 text-xs">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="font-medium text-slate-700">{employee.department}</span>
-                </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <Mail className="w-3.5 h-3.5 text-slate-400" />
                   <span>{employee.email}</span>
@@ -99,34 +123,28 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
                   <span>{employee.location}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Joined on {employee.joinDate}</span>
+                  <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{employee.department} • {employee.employmentType}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
-                  <Users className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Reporting Manager: <strong>{employee.managerName || 'Executive Team'}</strong></span>
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Joined: {employee.joinDate}</span>
                 </div>
               </div>
             </div>
 
-            {/* Today's Status & Leave Balance */}
+            {/* Attendance & Leave Quick Stats */}
             <div className="space-y-3">
-              {/* Today's Checkin */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Today's Attendance</h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-semibold text-slate-800">
-                      {employee.attendanceToday.checkIn ? `Check-in: ${employee.attendanceToday.checkIn}` : 'Not clocked in yet'}
-                    </span>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    employee.attendanceToday.status === 'On-Time' ? 'bg-emerald-100 text-emerald-800' :
-                    employee.attendanceToday.status === 'Late' ? 'bg-amber-100 text-amber-800' :
-                    'bg-slate-200 text-slate-800'
-                  }`}>
-                    {employee.attendanceToday.status}
+              {/* Today's Status */}
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-slate-500 font-medium">Status Today</div>
+                  <div className="font-bold text-slate-900 text-sm">{employee.status}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-slate-500 font-medium">Check-in / Out</div>
+                  <span className="text-xs font-semibold text-indigo-600">
+                    {employee.attendanceToday.checkIn || '--'} - {employee.attendanceToday.checkOut || '--'}
                   </span>
                 </div>
               </div>
@@ -185,4 +203,3 @@ export const EmployeeDetailModal: React.FC<EmployeeDetailModalProps> = ({
     </div>
   );
 };
-

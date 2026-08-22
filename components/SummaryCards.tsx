@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { 
   Users, 
   Clock, 
@@ -85,10 +86,15 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
         </div>
 
         {/* Present Today */}
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all">
+        <Link 
+          href="/admin/attendance"
+          className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-200 transition-all block group"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Present Today</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-emerald-700">
+              Present Today
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
               <UserCheck className="w-4 h-4" />
             </div>
           </div>
@@ -101,15 +107,22 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
           <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
             <span>{metrics.remoteToday} Remote</span>
             <span>•</span>
-            <span className="text-amber-600 font-medium">{metrics.lateArrivalsToday} Late arrivals</span>
+            <span className="text-emerald-600 font-semibold group-hover:underline flex items-center gap-0.5">
+              Open Viewer <ArrowUpRight className="w-3 h-3" />
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* Pending Leave Approvals */}
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all">
+        <Link 
+          href="/admin/leaves"
+          className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-amber-200 transition-all block group"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Leaves</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider group-hover:text-amber-700">
+              Pending Leaves
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
               <CalendarClock className="w-4 h-4" />
             </div>
           </div>
@@ -119,11 +132,16 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
               Action Required
             </span>
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-            <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-            <span>Avg decision SLA &lt; 24h</span>
+          <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center gap-1">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+              <span>Review Inbox</span>
+            </div>
+            <span className="text-amber-600 font-semibold group-hover:underline flex items-center gap-0.5">
+              Open <ArrowUpRight className="w-3 h-3" />
+            </span>
           </div>
-        </div>
+        </Link>
 
         {/* On Leave Today */}
         <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all">
@@ -197,7 +215,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
                 
                 <div className="space-y-2.5">
                   {departmentStats.slice(0, 5).map((dept) => {
-                    const percentage = Math.round((dept.totalEmployees / metrics.totalEmployees) * 100);
+                    const percentage = Math.round((dept.totalEmployees / Math.max(metrics.totalEmployees, 1)) * 100);
                     return (
                       <div key={dept.name} className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
@@ -248,10 +266,10 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
 
           {/* Footer Action */}
           <div className="p-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">148 total registered members</span>
+            <span className="text-xs text-slate-500 font-medium">Full registered roster</span>
             <button
               onClick={onViewAllEmployees}
-              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 flex items-center gap-1"
+              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 flex items-center gap-1 cursor-pointer"
             >
               Browse Directory <ChevronRight className="w-3.5 h-3.5" />
             </button>
@@ -274,12 +292,12 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
                   <p className="text-xs text-slate-500">Live check-ins & presence logs</p>
                 </div>
               </div>
-              <button
-                onClick={onViewAllAttendance}
+              <Link
+                href="/admin/attendance"
                 className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 hover:underline cursor-pointer"
               >
-                Full logs <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+                Open Viewer <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
             {/* Card Content */}
@@ -306,7 +324,9 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     Live Check-in Stream
                   </span>
-                  <span className="text-[11px] text-slate-400">Today, Aug 22</span>
+                  <Link href="/admin/attendance" className="text-[11px] text-emerald-700 font-semibold hover:underline">
+                    View full logs &gt;
+                  </Link>
                 </div>
 
                 <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
@@ -361,13 +381,13 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
 
           {/* Footer Action */}
           <div className="p-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Auto-sync with Biometric & VPN</span>
-            <button
-              onClick={onViewAllAttendance}
+            <span className="text-xs text-slate-500 font-medium">Daily & Weekly view available</span>
+            <Link
+              href="/admin/attendance"
               className="text-xs font-semibold text-slate-700 hover:text-emerald-600 flex items-center gap-1"
             >
-              Export CSV / PDF <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+              Open Attendance Viewer <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
@@ -394,12 +414,12 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
                   <p className="text-xs text-slate-500">Quick decision & conflict review</p>
                 </div>
               </div>
-              <button
-                onClick={onViewAllLeaves}
+              <Link
+                href="/admin/leaves"
                 className="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 hover:underline cursor-pointer"
               >
-                All requests <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+                Open Inbox <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
             {/* Card Content: Pending Requests with Inline 1-Click Actions */}
@@ -411,7 +431,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
                   <p className="text-xs text-slate-500 mt-0.5">No pending leave requests awaiting approval.</p>
                 </div>
               ) : (
-                filteredLeaves.map((request) => (
+                filteredLeaves.slice(0, 2).map((request) => (
                   <div
                     key={request.id}
                     className="p-3 rounded-xl border border-amber-200/70 bg-gradient-to-r from-amber-50/40 via-white to-white space-y-2.5 shadow-xs"
@@ -490,13 +510,13 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
 
           {/* Footer Action */}
           <div className="p-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Policy: Max 3 team members concurrent off</span>
-            <button
-              onClick={onViewAllLeaves}
+            <span className="text-xs text-slate-500 font-medium">Categorized by PTO, Sick, Unpaid</span>
+            <Link
+              href="/admin/leaves"
               className="text-xs font-semibold text-slate-700 hover:text-amber-600 flex items-center gap-1"
             >
-              Leave Calendar <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+              Open Leave Inbox <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
@@ -504,4 +524,3 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
     </div>
   );
 };
-
