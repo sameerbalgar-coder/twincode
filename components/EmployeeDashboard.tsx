@@ -13,13 +13,18 @@ import { QuickAccessCard } from './QuickAccessCard';
 import { ActivityFeed } from './ActivityFeed';
 import { EmployeeProfileView } from './EmployeeProfileView';
 import { AvatarUpload } from './AvatarUpload';
+import { SalarySlipModal } from './SalarySlipModal';
 import { 
   checkInApi, 
   checkOutApi, 
   fetchAttendanceApi, 
   fetchLeavesApi, 
-  createLeaveApi 
+  createLeaveApi,
+  fetchAttendanceReportApi,
+  fetchPayrollReportApi
 } from '../lib/apiClient';
+import { formatINR } from '../lib/admin/payroll-helpers';
+import { EmployeePayrollRecord } from '../types/admin-payroll';
 import { 
   User, 
   Clock, 
@@ -47,7 +52,12 @@ import {
   Plane,
   Loader2,
   AlertTriangle,
-  History
+  History,
+  BarChart3,
+  Printer,
+  Eye,
+  DollarSign,
+  CreditCard
 } from 'lucide-react';
 
 interface EmployeeDashboardProps {
@@ -82,11 +92,25 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   const [isApplyLeaveOpen, setIsApplyLeaveOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+  const [isSalarySlipModalOpen, setIsSalarySlipModalOpen] = useState(false);
 
   // Attendance History State
   const [attendanceViewMode, setAttendanceViewMode] = useState<'daily' | 'weekly'>('weekly');
   const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
   const [isAttendanceLoading, setIsAttendanceLoading] = useState(false);
+
+  // Reports & Analytics State
+  const [reportsModalTab, setReportsModalTab] = useState<'attendance' | 'payroll'>('attendance');
+  const [myAttendanceReport, setMyAttendanceReport] = useState<{
+    summary: { total: number; present: number; absent: number; halfDay: number; leave: number; attendanceRate: number };
+    records: any[];
+  }>({
+    summary: { total: 7, present: 4, absent: 1, halfDay: 1, leave: 1, attendanceRate: 92 },
+    records: []
+  });
+  const [myPayrollRecord, setMyPayrollRecord] = useState<EmployeePayrollRecord | null>(null);
+  const [isReportsLoading, setIsReportsLoading] = useState(false);
 
   // Leave Form & History State
   const [leaveModalTab, setLeaveModalTab] = useState<'apply' | 'history'>('apply');
@@ -152,6 +176,32 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     }
   }, [currentEmployee.id]);
 
+  // Fetch Personal Reports & Analytics
+  const loadPersonalReports = useCallback(async () => {
+    setIsReportsLoading(true);
+    try {
+      const [attRes, payRes] = await Promise.all([
+        fetchAttendanceReportApi({ employeeId: currentEmployee.id }, 'employee', currentEmployee.id),
+        fetchPayrollReportApi({ employeeId: currentEmployee.id }, 'employee', currentEmployee.id)
+      ]);
+
+      if (attRes.success) {
+        setMyAttendanceReport({
+          summary: attRes.summary,
+          records: attRes.data
+        });
+      }
+
+      if (payRes.success && payRes.data && payRes.data.length > 0) {
+        setMyPayrollRecord(payRes.data[0]);
+      }
+    } catch (err: any) {
+      console.error('Error fetching personal reports:', err);
+    } finally {
+      setIsReportsLoading(false);
+    }
+  }, [currentEmployee.id]);
+
   useEffect(() => {
     if (isAttendanceModalOpen) {
       loadAttendanceLogs(attendanceViewMode);
@@ -163,6 +213,12 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       loadLeaveHistory();
     }
   }, [isApplyLeaveOpen, loadLeaveHistory]);
+
+  useEffect(() => {
+    if (isReportsModalOpen || isSalarySlipModalOpen) {
+      loadPersonalReports();
+    }
+  }, [isReportsModalOpen, isSalarySlipModalOpen, loadPersonalReports]);
 
   // Attendance Clock-In / Clock-Out Handler
   const handleTogglePunch = async () => {
@@ -295,10 +351,10 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
             </div>
 
             {/* Center Navigation Switcher */}
-            <div className="hidden md:flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200 text-xs font-bold">
+            <div className="hidden md:flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200 text-xs font-bold gap-1">
               <button
                 onClick={() => setActiveMainView('dashboard')}
-                className={`px-4 py-1.5 rounded-xl transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
                   activeMainView === 'dashboard'
                     ? 'bg-white text-indigo-700 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -308,13 +364,20 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
               </button>
               <button
                 onClick={() => setActiveMainView('profile')}
-                className={`px-4 py-1.5 rounded-xl transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
                   activeMainView === 'profile'
                     ? 'bg-white text-indigo-700 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 My 360° Profile
+              </button>
+              <button
+                onClick={() => setIsReportsModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/80 flex items-center gap-1.5"
+              >
+                <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Reports & Payslips</span>
               </button>
             </div>
 
@@ -1024,6 +1087,257 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
 
           </div>
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: PERSONAL REPORTS & PAYSLIPS                                        */}
+      {/* ========================================================================= */}
+      {isReportsModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <BarChart3 className="w-5 h-5 text-indigo-400" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold">My Reports & Payslip Dossier</h3>
+                    <span className="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 px-2 py-0.2 rounded-full font-bold">
+                      {currentEmployee.name}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Personal attendance analytics and compensation statement</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsReportsModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Tabs */}
+            <div className="flex border-b border-slate-100 bg-slate-50/80 px-6 pt-3 gap-3">
+              <button
+                onClick={() => setReportsModalTab('attendance')}
+                className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                  reportsModalTab === 'attendance'
+                    ? 'border-indigo-600 text-indigo-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Attendance Analytics
+              </button>
+              <button
+                onClick={() => setReportsModalTab('payroll')}
+                className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                  reportsModalTab === 'payroll'
+                    ? 'border-indigo-600 text-indigo-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Payroll & Payslip
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 max-h-[500px] overflow-y-auto text-xs">
+              
+              {isReportsLoading ? (
+                <div className="py-12 text-center text-slate-400">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-600" />
+                  <span>Loading your analytics...</span>
+                </div>
+              ) : reportsModalTab === 'attendance' ? (
+                /* TAB 1: ATTENDANCE REPORT */
+                <div className="space-y-4">
+                  {/* Summary Metric Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
+                      <span className="text-[10px] uppercase font-bold text-emerald-800 block">Present</span>
+                      <div className="text-xl font-bold text-emerald-950 mt-0.5">{myAttendanceReport.summary.present} Days</div>
+                      <span className="text-[10px] text-emerald-700">Logged Shifts</span>
+                    </div>
+
+                    <div className="p-3 bg-amber-50 rounded-2xl border border-amber-100">
+                      <span className="text-[10px] uppercase font-bold text-amber-800 block">Absent</span>
+                      <div className="text-xl font-bold text-amber-950 mt-0.5">{myAttendanceReport.summary.absent} Days</div>
+                      <span className="text-[10px] text-amber-700">Unexcused</span>
+                    </div>
+
+                    <div className="p-3 bg-sky-50 rounded-2xl border border-sky-100">
+                      <span className="text-[10px] uppercase font-bold text-sky-800 block">Half-day</span>
+                      <div className="text-xl font-bold text-sky-950 mt-0.5">{myAttendanceReport.summary.halfDay} Days</div>
+                      <span className="text-[10px] text-sky-700">&lt; 4 Hours</span>
+                    </div>
+
+                    <div className="p-3 bg-purple-50 rounded-2xl border border-purple-100">
+                      <span className="text-[10px] uppercase font-bold text-purple-800 block">Leave</span>
+                      <div className="text-xl font-bold text-purple-950 mt-0.5">{myAttendanceReport.summary.leave} Days</div>
+                      <span className="text-[10px] text-purple-700">Approved</span>
+                    </div>
+                  </div>
+
+                  {/* Attendance Rate Banner */}
+                  <div className="p-3.5 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-between">
+                    <div>
+                      <span className="text-indigo-950 font-bold block">Punctuality & Attendance Score</span>
+                      <span className="text-[11px] text-indigo-700">Based on past 7 verification cycles</span>
+                    </div>
+                    <div className="text-xl font-black text-indigo-900 font-mono">
+                      {myAttendanceReport.summary.attendanceRate}%
+                    </div>
+                  </div>
+
+                  {/* Recent Logs Table */}
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">
+                      Recent Attendance Records
+                    </h4>
+                    <div className="space-y-1.5">
+                      {myAttendanceReport.records.slice(0, 5).map((log, idx) => (
+                        <div
+                          key={log.id || idx}
+                          className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between"
+                        >
+                          <div>
+                            <span className="font-bold text-slate-900 block">{log.date}</span>
+                            <span className="text-[10px] text-slate-500 font-mono">
+                              In: {log.checkIn} • Out: {log.checkOut} • {log.workHours}
+                            </span>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                            (log.status || '').includes('Leave') ? 'bg-purple-100 text-purple-800 border-purple-200' :
+                            (log.status || '').includes('Half') ? 'bg-sky-100 text-sky-800 border-sky-200' :
+                            (log.status || '').includes('Absent') ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                            'bg-emerald-100 text-emerald-800 border-emerald-200'
+                          }`}>
+                            {log.status || 'Present'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* TAB 2: PAYROLL & SALARY REPORT */
+                <div className="space-y-4">
+                  
+                  {/* Monthly Summary Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Gross Earnings</span>
+                      <div className="text-lg font-black text-slate-900 font-mono mt-0.5">
+                        {myPayrollRecord ? formatINR(myPayrollRecord.grossPay) : '₹1,25,000'}
+                      </div>
+                      <span className="text-[10px] text-slate-400">Basic + HRA + Allowances</span>
+                    </div>
+
+                    <div className="p-3 bg-rose-50/70 rounded-2xl border border-rose-100">
+                      <span className="text-[10px] uppercase font-bold text-rose-700 block">Total Deductions</span>
+                      <div className="text-lg font-black text-rose-600 font-mono mt-0.5">
+                        {myPayrollRecord ? `-${formatINR(myPayrollRecord.totalDeductions)}` : '-₹20,000'}
+                      </div>
+                      <span className="text-[10px] text-slate-400">PF + TDS + Health</span>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
+                      <span className="text-[10px] uppercase font-bold text-emerald-800 block">Net Take-Home Pay</span>
+                      <div className="text-lg font-black text-emerald-700 font-mono mt-0.5">
+                        {myPayrollRecord ? formatINR(myPayrollRecord.netPay) : '₹1,05,000'}
+                      </div>
+                      <span className="text-[10px] text-emerald-600 font-medium">Direct Deposit</span>
+                    </div>
+                  </div>
+
+                  {/* Salary Structure Breakdown Table */}
+                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                    <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[10px] flex items-center justify-between">
+                      <span>Salary Structure Breakdown (August 2026)</span>
+                      <span className="text-indigo-600 font-semibold font-mono">
+                        CTC: {myPayrollRecord ? formatINR(myPayrollRecord.annualCTC) : '₹15,00,000'} / yr
+                      </span>
+                    </h4>
+
+                    <div className="divide-y divide-slate-200/60 bg-white rounded-xl border border-slate-200/60 p-2.5 space-y-1">
+                      <div className="flex justify-between py-1 text-[11px]">
+                        <span className="text-slate-600">Basic Pay (50%)</span>
+                        <span className="font-mono font-semibold text-slate-900">
+                          {myPayrollRecord?.salaryStructure ? formatINR(myPayrollRecord.salaryStructure.basic) : '₹62,500'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 text-[11px]">
+                        <span className="text-slate-600">House Rent Allowance (HRA)</span>
+                        <span className="font-mono font-semibold text-slate-900">
+                          {myPayrollRecord?.salaryStructure ? formatINR(myPayrollRecord.salaryStructure.hra) : '₹31,250'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 text-[11px]">
+                        <span className="text-slate-600">Special Allowances</span>
+                        <span className="font-mono font-semibold text-slate-900">
+                          {myPayrollRecord?.salaryStructure ? formatINR(myPayrollRecord.salaryStructure.allowances) : '₹31,250'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 text-[11px] text-rose-700 font-medium">
+                        <span>Provident Fund (PF) Deduction</span>
+                        <span className="font-mono">
+                          {myPayrollRecord?.salaryStructure ? `-${formatINR(myPayrollRecord.salaryStructure.pfDeduction)}` : '-₹7,500'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 text-[11px] text-rose-700 font-medium">
+                        <span>Income Tax / TDS</span>
+                        <span className="font-mono">
+                          {myPayrollRecord?.salaryStructure ? `-${formatINR(myPayrollRecord.salaryStructure.taxDeduction)}` : '-₹12,500'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Direct Salary Slip Action */}
+                  <div className="p-4 bg-gradient-to-r from-indigo-900 to-indigo-950 text-white rounded-2xl flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-xs block">August 2026 Salary Statement</span>
+                      <span className="text-[10px] text-indigo-300">Generated & verified by Dayflow Payroll Engine</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsReportsModalOpen(false);
+                        setIsSalarySlipModalOpen(true);
+                      }}
+                      className="px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> View Payslip
+                    </button>
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
+              <button
+                onClick={() => setIsReportsModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Salary Slip Modal for Employee */}
+      {isSalarySlipModalOpen && myPayrollRecord && (
+        <SalarySlipModal
+          record={myPayrollRecord}
+          isOpen={isSalarySlipModalOpen}
+          onClose={() => setIsSalarySlipModalOpen(false)}
+        />
       )}
 
       {/* ========================================================================= */}

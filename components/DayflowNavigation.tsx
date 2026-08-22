@@ -17,7 +17,8 @@ import {
   CreditCard,
   LayoutDashboard,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  BarChart3
 } from 'lucide-react';
 import { Employee } from '../types/hrms';
 
@@ -57,6 +58,7 @@ export const DayflowNavigation: React.FC<DayflowNavigationProps> = ({
     { name: 'Attendance', href: '/admin/attendance', icon: Clock },
     { name: 'Time Off', href: '/admin/leaves', icon: CalendarClock, badge: pendingLeavesCount },
     { name: 'Payroll & Salary', href: '/admin/payroll', icon: CreditCard },
+    { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
   ];
 
   const filteredEmployees = employees.filter((emp) => {

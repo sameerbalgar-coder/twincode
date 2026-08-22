@@ -209,3 +209,74 @@ export async function fetchMetricsApi(): Promise<{
   return json.data;
 }
 
+export async function fetchAttendanceReportApi(
+  filters?: {
+    employeeId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    department?: string;
+    viewMode?: 'daily' | 'weekly';
+    search?: string;
+  },
+  role?: 'admin' | 'employee',
+  authEmployeeId?: string
+): Promise<{
+  success: boolean;
+  summary: {
+    total: number;
+    present: number;
+    absent: number;
+    halfDay: number;
+    leave: number;
+    attendanceRate: number;
+  };
+  count: number;
+  data: any[];
+}> {
+  const params = new URLSearchParams();
+  if (filters?.employeeId) params.set('employeeId', filters.employeeId);
+  if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
+  if (filters?.dateTo) params.set('dateTo', filters.dateTo);
+  if (filters?.department) params.set('department', filters.department);
+  if (filters?.viewMode) params.set('viewMode', filters.viewMode);
+  if (filters?.search) params.set('search', filters.search);
+
+  const headers: Record<string, string> = {};
+  if (role) headers['x-user-role'] = role;
+  if (authEmployeeId) headers['x-employee-id'] = authEmployeeId;
+
+  const res = await fetch(`/api/reports/attendance?${params.toString()}`, { headers });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message || 'Failed to fetch attendance report');
+  return json;
+}
+
+export async function fetchPayrollReportApi(
+  filters?: {
+    employeeId?: string;
+    department?: string;
+    search?: string;
+  },
+  role?: 'admin' | 'employee',
+  authEmployeeId?: string
+): Promise<{
+  success: boolean;
+  summary: any;
+  count: number;
+  data: any[];
+}> {
+  const params = new URLSearchParams();
+  if (filters?.employeeId) params.set('employeeId', filters.employeeId);
+  if (filters?.department) params.set('department', filters.department);
+  if (filters?.search) params.set('search', filters.search);
+
+  const headers: Record<string, string> = {};
+  if (role) headers['x-user-role'] = role;
+  if (authEmployeeId) headers['x-employee-id'] = authEmployeeId;
+
+  const res = await fetch(`/api/reports/payroll?${params.toString()}`, { headers });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message || 'Failed to fetch payroll report');
+  return json;
+}
+
