@@ -23,12 +23,16 @@ import {
   Eye,
   Check
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { DayflowNavigation } from '@/components/DayflowNavigation';
 import { Employee } from '@/types/hrms';
 import { AdminLeaveItem, LeaveCategory, LeaveApprovalStatus } from '@/types/admin-attendance-leave';
 import { fetchEmployeesApi } from '@/lib/apiClient';
 
-export default function AdminLeaveApprovalPage() {
+function LeaveApprovalContent() {
+  const searchParams = useSearchParams();
+  const initialEmpId = searchParams.get('employeeId');
+
   // State
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -36,6 +40,16 @@ export default function AdminLeaveApprovalPage() {
   const [activeCategory, setActiveCategory] = useState<LeaveCategory>('All');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Approved' | 'Rejected'>('Pending');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Pre-select employee from query params on load
+  useEffect(() => {
+    if (initialEmpId && employees.length > 0) {
+      const match = employees.find(e => e.id === initialEmpId);
+      if (match) {
+        setSelectedEmployee(match);
+      }
+    }
+  }, [initialEmpId, employees]);
 
   // Loading & Processing States
   const [isLoading, setIsLoading] = useState(true);
@@ -646,6 +660,14 @@ export default function AdminLeaveApprovalPage() {
       )}
 
     </div>
+  );
+}
+
+export default function AdminLeaveApprovalPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-100/70"><Loader2 className="w-8 h-8 text-indigo-600 animate-spin" /></div>}>
+      <LeaveApprovalContent />
+    </React.Suspense>
   );
 }
 

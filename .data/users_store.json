@@ -1,0 +1,93 @@
+[
+  {
+    "id": "USR-ADMIN-01",
+    "employeeId": "ADM-1001",
+    "name": "Amara Okafor",
+    "email": "amara.okafor@dayflow.internal",
+    "passwordHash": "b0910c29c57fa80c6f523ea4df68ff96cb796cec262be83847ef5e2fea874c0413c218b5894b9f41320ca173d3682fab87a76a2abc2400d261ea888b66a63db9",
+    "salt": "fixed_seed_salt_admin_01",
+    "role": "ADMIN",
+    "department": "People Operations",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "createdAt": "2026-08-22T10:43:55.501Z"
+  },
+  {
+    "id": "USR-HR-01",
+    "employeeId": "HR-2001",
+    "name": "Elena Rostova",
+    "email": "hr@dayflow.internal",
+    "passwordHash": "f87e473ed4c757578600ef4dbafd145978f25d71d5efa3f13414a6df974d614fc2b12b57971dec6a9cf6d4ee3000a040d2b0ca5b4fc92a62ce70d2739676204b",
+    "salt": "fixed_seed_salt_hr_01",
+    "role": "HR",
+    "department": "Human Resources",
+    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "createdAt": "2026-08-22T10:43:55.535Z"
+  },
+  {
+    "id": "USR-EMP-01",
+    "employeeId": "EMP-1001",
+    "name": "Alex Rivera",
+    "email": "alex.rivera@dayflow.internal",
+    "passwordHash": "9075090f25e126e22a35b930ec1f8ea6804e73a6358b5141fd3a99c9257a8287f4599755725a4f634b48ee6b85fb49dfc0c6b25f1afd6f7074e0a1d3cab46746",
+    "salt": "fixed_seed_salt_emp_01",
+    "role": "EMPLOYEE",
+    "department": "Engineering",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "createdAt": "2026-08-22T10:43:55.569Z"
+  },
+  {
+    "employeeId": "374663678329",
+    "name": "Meow",
+    "email": "meow@electrnoic.com",
+    "passwordHash": "717ced10ef72bcadc873bf6380430f6fb63bfbaf978e623c0c105e38ab09d2aa2106a4adf23f3cfcda817e6c7ddc045000d9b60918f2de197e31477ceded5a09",
+    "salt": "cbfac65cd253df02d0e0b593e24ab915",
+    "role": "EMPLOYEE",
+    "department": "Engineering",
+    "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "id": "USR-2040",
+    "createdAt": "2026-08-22T10:44:39.687Z"
+  },
+  {
+    "employeeId": "12345678",
+    "name": "Shekharsadekar21",
+    "email": "shekharsadekar21@gmail.com",
+    "passwordHash": "f9735ef376034943eefcd7ab4d9a29a8d4837849cf0d3fd9572f7531de058dd771ef3b42d80559975f8556ad8fdfd50ae5e7acaf94fe7f4191d6bcee33e566c3",
+    "salt": "b44402d2e97fa99ee27d962fff44730d",
+    "role": "EMPLOYEE",
+    "department": "Engineering",
+    "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "id": "USR-7253",
+    "createdAt": "2026-08-22T11:06:07.421Z"
+  },
+  {
+    "employeeId": "12345543",
+    "name": "Shekharsadekar22",
+    "email": "shekharsadekar22@gmail.com",
+    "passwordHash": "6fcd5a20583359c09d484c8cb990a34a2b33906fc1298be6482934f66f2827f9c6567db34bb4d2da44b244f7539d174834436ecb3a5a7baa6e6e3e2b99a9137b",
+    "salt": "56d42d766fbe69980c940fab16d466d5",
+    "role": "ADMIN",
+    "department": "People Operations",
+    "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "id": "USR-4446",
+    "createdAt": "2026-08-22T11:08:58.571Z"
+  },
+  {
+    "employeeId": "111111111",
+    "name": "Vivek",
+    "email": "vivek@gmail.com",
+    "passwordHash": "e2c5b7752a6a517fc526bf848d6cb8861808e6ff131814af4db6f276935de86ceaf90f05e877fc785d59d149a0c189bf17e31b9f55dad5c949dfe04ea75d8461",
+    "salt": "806afaefc6f13023ea61e974512363e1",
+    "role": "ADMIN",
+    "department": "People Operations",
+    "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    "isVerified": true,
+    "id": "USR-3733",
+    "createdAt": "2026-08-22T11:10:02.385Z"
+  }
+]

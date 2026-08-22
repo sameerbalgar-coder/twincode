@@ -24,6 +24,7 @@ import {
   ArrowUpRight,
   Wallet
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { DayflowNavigation } from '@/components/DayflowNavigation';
 import { Employee } from '@/types/hrms';
 import { 
@@ -35,7 +36,10 @@ import { formatINR } from '@/lib/admin/payroll-helpers';
 import { SalaryInfoTab } from '@/components/admin/SalaryInfoTab';
 import { fetchEmployeesApi } from '@/lib/apiClient';
 
-export default function AdminPayrollDashboardPage() {
+function PayrollContent() {
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || searchParams.get('employeeId') || '';
+
   // State
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -50,8 +54,15 @@ export default function AdminPayrollDashboardPage() {
   });
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedDepartment, setSelectedDepartment] = useState('All');
+
+  // Pre-filter from query params on load
+  useEffect(() => {
+    if (initialSearch) {
+      setSearchQuery(initialSearch);
+    }
+  }, [initialSearch]);
 
   // Loading & Processing States
   const [isLoading, setIsLoading] = useState(true);
@@ -519,6 +530,14 @@ export default function AdminPayrollDashboardPage() {
       )}
 
     </div>
+  );
+}
+
+export default function AdminPayrollDashboardPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-100/70"><Loader2 className="w-8 h-8 text-indigo-600 animate-spin" /></div>}>
+      <PayrollContent />
+    </React.Suspense>
   );
 }
 

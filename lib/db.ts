@@ -16,16 +16,76 @@ import {
   mockHRMetrics 
 } from '../data/mockHrmsData';
 import { AttendanceRecordItem, AdminLeaveItem } from '../types/admin-attendance-leave';
+import { AppNotification } from '../types/notification';
 
 interface DatabaseSchema {
   employees: Employee[];
   attendanceRecords: AttendanceRecord[];
   leaveRequests: LeaveRequest[];
+  notifications: AppNotification[];
   lastUpdated: string;
 }
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'hrms_store.json');
+
+const initialNotifications: AppNotification[] = [
+  {
+    id: 'NOTIF-101',
+    employeeId: 'EMP-1001',
+    recipientRole: 'EMPLOYEE',
+    title: 'Leave Request Approved',
+    message: 'Your Paid Annual Leave application (Aug 25 - Aug 28) has been approved by HR Operations.',
+    type: 'leave_approved',
+    isRead: false,
+    createdAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    link: '/employee/dashboard'
+  },
+  {
+    id: 'NOTIF-102',
+    employeeId: 'EMP-1001',
+    recipientRole: 'EMPLOYEE',
+    title: 'August 2026 Salary Slip Ready',
+    message: 'Your monthly salary breakdown and direct deposit payslip is available for review.',
+    type: 'payroll_update',
+    isRead: false,
+    createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+    link: '/employee/dashboard'
+  },
+  {
+    id: 'NOTIF-103',
+    employeeId: 'EMP-1001',
+    recipientRole: 'EMPLOYEE',
+    title: 'Attendance Check-in Recorded',
+    message: 'Your biometric check-in at 09:02 AM has been marked On-Time.',
+    type: 'attendance_alert',
+    isRead: true,
+    createdAt: new Date(Date.now() - 7 * 3600 * 1000).toISOString(),
+    link: '/employee/dashboard'
+  },
+  {
+    id: 'NOTIF-201',
+    employeeId: 'ALL_ADMINS',
+    recipientRole: 'ADMIN',
+    title: 'New Leave Request Received',
+    message: 'Marcus Brody applied for 3 days of Casual Leave (Aug 24 - Aug 26).',
+    type: 'leave_applied',
+    isRead: false,
+    createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+    link: '/admin/leaves'
+  },
+  {
+    id: 'NOTIF-202',
+    employeeId: 'ALL_ADMINS',
+    recipientRole: 'ADMIN',
+    title: 'Attendance Punctuality SLA Met',
+    message: 'Today 94.6% attendance rate achieved across 140 active employees.',
+    type: 'attendance_alert',
+    isRead: true,
+    createdAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
+    link: '/admin/attendance'
+  }
+];
 
 // Ensure directory and db file exist
 function ensureDatabase(): DatabaseSchema {
@@ -39,6 +99,7 @@ function ensureDatabase(): DatabaseSchema {
         employees: mockEmployees,
         attendanceRecords: mockAttendanceRecords,
         leaveRequests: mockLeaveRequests,
+        notifications: initialNotifications,
         lastUpdated: new Date().toISOString()
       };
       fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
@@ -46,13 +107,19 @@ function ensureDatabase(): DatabaseSchema {
     }
 
     const content = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(content) as DatabaseSchema;
+    const parsed = JSON.parse(content) as DatabaseSchema;
+    if (!parsed.notifications || !Array.isArray(parsed.notifications)) {
+      parsed.notifications = initialNotifications;
+      saveDatabase(parsed);
+    }
+    return parsed;
   } catch (error) {
     console.error('Error reading/initializing HRMS database:', error);
     return {
       employees: mockEmployees,
       attendanceRecords: mockAttendanceRecords,
       leaveRequests: mockLeaveRequests,
+      notifications: initialNotifications,
       lastUpdated: new Date().toISOString()
     };
   }
@@ -112,7 +179,11 @@ export async function getEmployees(filter?: {
 
 export async function getEmployeeById(id: string): Promise<Employee | null> {
   const db = ensureDatabase();
-  return db.employees.find(e => e.id === id) || null;
+  const cleanId = id.trim().toLowerCase();
+  return db.employees.find(e => 
+    e.id.toLowerCase() === cleanId || 
+    (e.email && e.email.toLowerCase() === cleanId)
+  ) || null;
 }
 
 export async function createEmployee(data: Partial<Employee>): Promise<Employee> {
@@ -156,13 +227,17 @@ export async function createEmployee(data: Partial<Employee>): Promise<Employee>
 
 export async function updateEmployee(id: string, updates: Partial<Employee>): Promise<Employee | null> {
   const db = ensureDatabase();
-  const index = db.employees.findIndex(e => e.id === id);
+  const cleanId = id.trim().toLowerCase();
+  const index = db.employees.findIndex(e => 
+    e.id.toLowerCase() === cleanId || 
+    (e.email && e.email.toLowerCase() === cleanId)
+  );
   if (index === -1) return null;
 
   db.employees[index] = {
     ...db.employees[index],
     ...updates,
-    id // Ensure ID remains immutable
+    id: db.employees[index].id // Ensure ID remains immutable
   };
 
   saveDatabase(db);
@@ -380,6 +455,21 @@ export async function createLeaveRequest(data: Partial<LeaveRequest>): Promise<L
   };
 
   db.leaveRequests.unshift(newRequest);
+
+  // Trigger notification for Admin/HR
+  const notif: AppNotification = {
+    id: `NOTIF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    employeeId: 'ALL_ADMINS',
+    recipientRole: 'ADMIN',
+    title: 'New Leave Request Received',
+    message: `${newRequest.employeeName} (${newRequest.department}) applied for ${newRequest.daysCount} day(s) of ${newRequest.leaveType} (${newRequest.startDate} to ${newRequest.endDate}).`,
+    type: 'leave_applied',
+    isRead: false,
+    createdAt: new Date().toISOString(),
+    link: '/admin/leaves'
+  };
+  db.notifications.unshift(notif);
+
   saveDatabase(db);
   return newRequest;
 }
@@ -433,6 +523,20 @@ export async function approveLeaveRequest(
     }
   }
 
+  // Trigger notification for employee
+  const employeeNotif: AppNotification = {
+    id: `NOTIF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    employeeId: req.employeeId,
+    recipientRole: 'EMPLOYEE',
+    title: 'Leave Request Approved',
+    message: `Your ${req.leaveType} application (${req.startDate} to ${req.endDate}) has been approved by HR Operations.${adminRemarks ? ` Remarks: "${adminRemarks}"` : ''}`,
+    type: 'leave_approved',
+    isRead: false,
+    createdAt: new Date().toISOString(),
+    link: '/employee/dashboard'
+  };
+  db.notifications.unshift(employeeNotif);
+
   saveDatabase(db);
   
   return {
@@ -467,6 +571,20 @@ export async function rejectLeaveRequest(
     req.adminRemarks = adminRemarks;
   }
 
+  // Trigger notification for employee
+  const employeeNotif: AppNotification = {
+    id: `NOTIF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    employeeId: req.employeeId,
+    recipientRole: 'EMPLOYEE',
+    title: 'Leave Request Rejected',
+    message: `Your ${req.leaveType} application (${req.startDate} to ${req.endDate}) was rejected by HR Operations.${adminRemarks ? ` Reason: "${adminRemarks}"` : ''}`,
+    type: 'leave_rejected',
+    isRead: false,
+    createdAt: new Date().toISOString(),
+    link: '/employee/dashboard'
+  };
+  db.notifications.unshift(employeeNotif);
+
   saveDatabase(db);
   
   return {
@@ -485,6 +603,104 @@ export async function rejectLeaveRequest(
     appliedDate: req.appliedDate,
     adminRemarks: req.adminRemarks
   };
+}
+
+// ============================================================================
+// NOTIFICATIONS API & STORE
+// ============================================================================
+
+export async function getNotifications(filter?: {
+  employeeId?: string;
+  userId?: string;
+  role?: string;
+}): Promise<AppNotification[]> {
+  const db = ensureDatabase();
+  let list = db.notifications || [];
+
+  if (filter) {
+    const { employeeId, userId, role } = filter;
+    const cleanEmpId = employeeId?.trim().toLowerCase();
+    const cleanUserId = userId?.trim().toLowerCase();
+    const userRole = role?.toUpperCase();
+
+    list = list.filter((n) => {
+      if (n.employeeId === 'ALL' || n.recipientRole === 'ALL') return true;
+      if ((userRole === 'ADMIN' || userRole === 'HR') && (n.employeeId === 'ALL_ADMINS' || n.recipientRole === 'ADMIN' || n.recipientRole === 'HR')) {
+        return true;
+      }
+      if (cleanEmpId && n.employeeId && n.employeeId.toLowerCase() === cleanEmpId) {
+        return true;
+      }
+      if (cleanUserId && n.userId && n.userId.toLowerCase() === cleanUserId) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function createNotification(data: Omit<AppNotification, 'id' | 'createdAt'>): Promise<AppNotification> {
+  const db = ensureDatabase();
+  const newNotif: AppNotification = {
+    ...data,
+    id: `NOTIF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    createdAt: new Date().toISOString()
+  };
+
+  db.notifications.unshift(newNotif);
+  saveDatabase(db);
+  return newNotif;
+}
+
+export async function markNotificationAsRead(id: string, userIdentifier?: string): Promise<boolean> {
+  const db = ensureDatabase();
+  const notif = db.notifications.find((n) => n.id === id);
+  if (!notif) return false;
+
+  notif.isRead = true;
+  saveDatabase(db);
+  return true;
+}
+
+export async function markAllNotificationsAsRead(filter?: {
+  employeeId?: string;
+  userId?: string;
+  role?: string;
+}): Promise<number> {
+  const db = ensureDatabase();
+  let updatedCount = 0;
+
+  if (filter) {
+    const { employeeId, userId, role } = filter;
+    const cleanEmpId = employeeId?.trim().toLowerCase();
+    const cleanUserId = userId?.trim().toLowerCase();
+    const userRole = role?.toUpperCase();
+
+    db.notifications.forEach((n) => {
+      let isRecipient = false;
+      if (n.employeeId === 'ALL' || n.recipientRole === 'ALL') isRecipient = true;
+      else if ((userRole === 'ADMIN' || userRole === 'HR') && (n.employeeId === 'ALL_ADMINS' || n.recipientRole === 'ADMIN' || n.recipientRole === 'HR')) isRecipient = true;
+      else if (cleanEmpId && n.employeeId && n.employeeId.toLowerCase() === cleanEmpId) isRecipient = true;
+      else if (cleanUserId && n.userId && n.userId.toLowerCase() === cleanUserId) isRecipient = true;
+
+      if (isRecipient && !n.isRead) {
+        n.isRead = true;
+        updatedCount++;
+      }
+    });
+  } else {
+    db.notifications.forEach((n) => {
+      if (!n.isRead) {
+        n.isRead = true;
+        updatedCount++;
+      }
+    });
+  }
+
+  saveDatabase(db);
+  return updatedCount;
 }
 
 // ============================================================================

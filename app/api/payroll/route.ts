@@ -6,9 +6,28 @@ import {
   calculateProRatedPay 
 } from '@/lib/admin/payroll-helpers';
 import { EmployeePayrollRecord, PayrollSummaryMetrics } from '@/types/admin-payroll';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
+    const user = getAuthenticatedUser(request);
+
+    // Enforce Authentication
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized. Please sign in.' },
+        { status: 401 }
+      );
+    }
+
+    // Enforce Admin / HR permission for company-wide payroll ledger
+    if (user.role !== 'ADMIN' && user.role !== 'HR') {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden. Employees are not authorized to view the company-wide payroll ledger.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || undefined;
     const department = searchParams.get('department') || undefined;

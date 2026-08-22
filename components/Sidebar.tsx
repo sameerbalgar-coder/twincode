@@ -217,14 +217,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between px-2 text-xs text-slate-400">
             <button 
               type="button"
-              onClick={() => alert('Dayflow Enterprise Help Desk: help@dayflow.io')}
+              onClick={() => alert('Dayflow Enterprise Help Desk: help@dayflow.internal')}
               className="flex items-center gap-1.5 hover:text-slate-200 transition-colors cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5" /> Support
             </button>
             <button 
               type="button"
-              onClick={() => alert('Signing out of HR Admin Portal...')}
+              onClick={async () => {
+                try {
+                  await fetch('/api/auth/logout', { method: 'POST' });
+                  window.location.href = '/auth/login';
+                } catch {
+                  window.location.href = '/auth/login';
+                }
+              }}
               className="flex items-center gap-1.5 hover:text-rose-400 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" /> Sign Out
