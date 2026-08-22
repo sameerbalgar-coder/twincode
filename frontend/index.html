@@ -6,22 +6,17 @@
 
     <title>Dayflow HRMS</title>
 
-    <link rel="stylesheet" href="style.css">
-
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
 
     <div class="page">
 
-        <!-- =========================
-             BRAND / LEFT SIDE
-        ========================== -->
+        <!-- Left side -->
         <section class="brand-section">
 
-            <div class="brand-logo">
-                D
-            </div>
+            <div class="brand-logo">D</div>
 
             <h1>Dayflow</h1>
 
@@ -36,9 +31,7 @@
         </section>
 
 
-        <!-- =========================
-             AUTHENTICATION
-        ========================== -->
+        <!-- Login / Signup -->
         <section class="auth-container">
 
             <div class="auth-card">
@@ -47,15 +40,15 @@
                 <div class="auth-tabs">
 
                     <button
-                        class="tab active"
                         id="signInTab"
+                        class="tab active"
                         onclick="showSignIn()">
                         SIGN IN
                     </button>
 
                     <button
-                        class="tab"
                         id="signUpTab"
+                        class="tab"
                         onclick="showSignUp()">
                         SIGN UP
                     </button>
@@ -63,18 +56,17 @@
                 </div>
 
 
-                <!-- =====================
+                <!-- =========================
                      SIGN IN
-                ====================== -->
+                ========================== -->
+
                 <div id="signInPage" class="auth-page active">
 
                     <div class="heading">
 
                         <span>WELCOME BACK</span>
 
-                        <h2>
-                            Sign in to Dayflow
-                        </h2>
+                        <h2>Sign in to Dayflow</h2>
 
                         <p>
                             Enter your Login ID and password.
@@ -149,8 +141,7 @@
 
                         Don't have an account?
 
-                        <button
-                            onclick="showSignUp()">
+                        <button onclick="showSignUp()">
                             Sign Up
                         </button>
 
@@ -159,21 +150,20 @@
                 </div>
 
 
-                <!-- =====================
+                <!-- =========================
                      SIGN UP
-                ====================== -->
+                ========================== -->
+
                 <div id="signUpPage" class="auth-page">
 
                     <div class="heading">
 
                         <span>ACCOUNT CREATION</span>
 
-                        <h2>
-                            Create employee account
-                        </h2>
+                        <h2>Create employee account</h2>
 
                         <p>
-                            Only HR/Admin can create employee accounts.
+                            HR/Admin can create employee accounts.
                         </p>
 
                     </div>
@@ -181,7 +171,6 @@
 
                     <form id="signupForm">
 
-                        <!-- Company -->
                         <label for="companyName">
                             Company Name
                         </label>
@@ -194,7 +183,6 @@
                         >
 
 
-                        <!-- Employee Name -->
                         <label for="employeeName">
                             Employee Name
                         </label>
@@ -207,7 +195,6 @@
                         >
 
 
-                        <!-- Email -->
                         <label for="employeeEmail">
                             Email
                         </label>
@@ -220,7 +207,6 @@
                         >
 
 
-                        <!-- Phone -->
                         <label for="employeePhone">
                             Phone
                         </label>
@@ -228,12 +214,11 @@
                         <input
                             type="tel"
                             id="employeePhone"
-                            placeholder="+91 XXXXX XXXXX"
+                            placeholder="Enter phone number"
                             required
                         >
 
 
-                        <!-- Joining Year -->
                         <label for="joiningYear">
                             Year of Joining
                         </label>
@@ -248,9 +233,8 @@
                         >
 
 
-                        <!-- Generated Login ID -->
                         <label>
-                            System Generated Login ID
+                            Generated Login ID
                         </label>
 
                         <div class="generated-field">
@@ -258,7 +242,7 @@
                             <input
                                 type="text"
                                 id="generatedLoginId"
-                                placeholder="Generated automatically"
+                                placeholder="Generate Login ID"
                                 readonly
                             >
 
@@ -271,9 +255,8 @@
                         </div>
 
 
-                        <!-- Generated Password -->
                         <label>
-                            System Generated Password
+                            Generated Password
                         </label>
 
                         <div class="generated-field">
@@ -281,7 +264,7 @@
                             <input
                                 type="text"
                                 id="generatedPassword"
-                                placeholder="Generated automatically"
+                                placeholder="Generate password"
                                 readonly
                             >
 
@@ -294,7 +277,6 @@
                         </div>
 
 
-                        <!-- Confirm Password -->
                         <label for="confirmPassword">
                             Confirm Password
                         </label>
@@ -304,7 +286,7 @@
                             <input
                                 type="password"
                                 id="confirmPassword"
-                                placeholder="Enter generated password"
+                                placeholder="Confirm password"
                                 required
                             >
 
@@ -317,23 +299,10 @@
                         </div>
 
 
-                        <!-- Logo -->
-                        <label for="companyLogo">
-                            Company / App Logo
-                        </label>
-
-                        <input
-                            type="file"
-                            id="companyLogo"
-                            accept="image/*"
-                        >
-
-
+                        <!-- Information -->
                         <div class="requirement-box">
 
-                            <strong>
-                                Important
-                            </strong>
+                            <strong>Important</strong>
 
                             <p>
                                 The system generates the employee
@@ -358,8 +327,7 @@
 
                         Already have an account?
 
-                        <button
-                            onclick="showSignIn()">
+                        <button onclick="showSignIn()">
                             Sign In
                         </button>
 
@@ -374,14 +342,11 @@
     </div>
 
 
-    <!-- Toast -->
-    <div
-        id="toast"
-        class="toast">
-    </div>
+    <!-- Notification -->
+    <div id="toast" class="toast"></div>
 
 
-    <script src="app.js"></script>
+    <script src="opp.js"></script>
 
 </body>
 </html>
