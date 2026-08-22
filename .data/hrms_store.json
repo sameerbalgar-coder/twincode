@@ -8,7 +8,7 @@
       "role": "Principal Frontend Architect",
       "department": "Engineering",
       "employmentType": "Full-time",
-      "status": "Active",
+      "status": "On Leave",
       "joinDate": "2022-03-15",
       "salary": "₹8,10,000",
       "phone": "+1 (555) 234-5678",
@@ -20,7 +20,7 @@
         },
         "sick": {
           "total": 10,
-          "used": 2
+          "used": 5
         },
         "paid": {
           "total": 20,
@@ -32,8 +32,9 @@
         }
       },
       "attendanceToday": {
-        "checkIn": "08:52 AM",
-        "status": "On-Time"
+        "checkIn": "--",
+        "checkOut": "--",
+        "status": "Leave"
       },
       "directReportsCount": 4,
       "managerName": "Alex Rivera",
@@ -112,6 +113,32 @@
           "fileSize": "4.1 MB",
           "uploadDate": "2022-03-11",
           "status": "Verified"
+        }
+      ],
+      "activities": [
+        {
+          "id": "ACT-1787396929018",
+          "type": "leave",
+          "title": "Leave Application Approved",
+          "description": "Sick Leave (3d) approved by HR. Remarks: \"Medical leave approved with full pay.\"",
+          "timestamp": "Just now",
+          "status": "success"
+        },
+        {
+          "id": "ACT-1787396929015",
+          "type": "leave",
+          "title": "Sick Leave Submitted",
+          "description": "3 day(s) from 2026-10-10 to 2026-10-12 (Status: Pending HR Review)",
+          "timestamp": "Just now",
+          "status": "info"
+        },
+        {
+          "id": "ACT-1787396897307",
+          "type": "attendance",
+          "title": "Biometric Clock-Out Recorded",
+          "description": "Clocked out at 04:38 PM • Total duration: 7h 46m (Status: Present)",
+          "timestamp": "Just now",
+          "status": "info"
         }
       ]
     },
@@ -935,10 +962,10 @@
       "employeeAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
       "department": "Engineering",
       "date": "Today, Aug 22",
-      "checkInTime": "08:52 AM",
+      "checkInTime": "--",
       "checkOutTime": "--",
-      "workHours": "2h 58m (Active)",
-      "status": "On-Time",
+      "workHours": "0h (On Leave)",
+      "status": "Approved Leave",
       "ipLocation": "SF HQ Office (192.168.1.24)",
       "device": "MacBook Pro M3"
     },
@@ -1000,6 +1027,22 @@
     }
   ],
   "leaveRequests": [
+    {
+      "id": "LV-942",
+      "employeeId": "EMP-1001",
+      "employeeName": "Sarah Jenkins",
+      "employeeAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      "department": "Engineering",
+      "role": "Principal Frontend Architect",
+      "leaveType": "Sick Leave",
+      "startDate": "2026-10-10",
+      "endDate": "2026-10-12",
+      "daysCount": 3,
+      "reason": "Medical checkup and rest",
+      "appliedDate": "2026-08-22",
+      "status": "Approved",
+      "adminRemarks": "Medical leave approved with full pay."
+    },
     {
       "id": "LV-501",
       "employeeId": "EMP-1001",
@@ -1077,5 +1120,5 @@
       "status": "Approved"
     }
   ],
-  "lastUpdated": "2026-08-22T08:38:56.707Z"
+  "lastUpdated": "2026-08-22T11:08:49.019Z"
 }

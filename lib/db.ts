@@ -15,7 +15,7 @@ import {
   mockDepartmentStats, 
   mockHRMetrics 
 } from '../data/mockHrmsData';
-import { AttendanceRecordItem, AdminLeaveItem } from '../types/admin-attendance-leave';
+import { AttendanceRecordItem, AdminLeaveItem, StatusIndicatorType } from '../types/admin-attendance-leave';
 
 interface DatabaseSchema {
   employees: Employee[];
@@ -181,8 +181,177 @@ export async function deleteEmployee(id: string): Promise<boolean> {
 }
 
 // ============================================================================
-// ATTENDANCE RECORDS (Daily & Weekly Views)
+// ATTENDANCE RECORDS (Daily & Weekly Views, Check-In / Check-Out)
 // ============================================================================
+
+export async function checkInAttendance(
+  employeeId: string, 
+  location?: string, 
+  device?: string
+): Promise<{ success: boolean; message: string; record?: AttendanceRecord; employee?: Employee }> {
+  const db = ensureDatabase();
+  const employee = db.employees.find(e => e.id === employeeId);
+
+  if (!employee) {
+    return { success: false, message: `Employee with ID ${employeeId} not found.` };
+  }
+
+  // Check if employee is on leave
+  if (employee.status === 'On Leave') {
+    return { success: false, message: 'You are currently on Approved Leave. Clock-in is disabled.' };
+  }
+
+  const todayStr = 'Today, Aug 22';
+  const existingLogIndex = db.attendanceRecords.findIndex(
+    a => a.employeeId === employeeId && (a.date === todayStr || a.date === new Date().toISOString().split('T')[0])
+  );
+
+  const existingLog = existingLogIndex !== -1 ? db.attendanceRecords[existingLogIndex] : null;
+
+  // Prevent duplicate check-in
+  if (existingLog && existingLog.checkInTime && existingLog.checkInTime !== '--') {
+    if (existingLog.checkOutTime && existingLog.checkOutTime !== '--') {
+      return { 
+        success: false, 
+        message: `Shift already completed for today (Checked out at ${existingLog.checkOutTime}). Duplicate check-in is not permitted.` 
+      };
+    }
+    return { 
+      success: false, 
+      message: `Already checked in today at ${existingLog.checkInTime}. Please clock out first before starting a new shift.` 
+    };
+  }
+
+  const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const newRecord: AttendanceRecord = {
+    id: existingLog?.id || `ATT-${Date.now().toString().slice(-6)}`,
+    employeeId: employee.id,
+    employeeName: employee.name,
+    employeeAvatar: employee.avatar,
+    department: employee.department,
+    date: todayStr,
+    checkInTime: timeStr,
+    checkOutTime: '--',
+    workHours: 'Active Shift',
+    status: employee.status === 'Remote' ? 'Remote' : 'Present',
+    ipLocation: location || `${employee.location.split('(')[0].trim()} (192.168.1.50)`,
+    device: device || 'Workstation'
+  };
+
+  if (existingLogIndex !== -1) {
+    db.attendanceRecords[existingLogIndex] = newRecord;
+  } else {
+    db.attendanceRecords.unshift(newRecord);
+  }
+
+  // Update employee state
+  employee.attendanceToday = {
+    checkIn: timeStr,
+    checkOut: undefined,
+    status: 'Present'
+  };
+
+  // Add activity log
+  employee.activities = [
+    {
+      id: `ACT-${Date.now()}`,
+      type: 'attendance',
+      title: 'Biometric Clock-In Recorded',
+      description: `Clocked in at ${timeStr} (${newRecord.ipLocation})`,
+      timestamp: 'Just now',
+      status: 'success'
+    },
+    ...(employee.activities || [])
+  ];
+
+  saveDatabase(db);
+  return { success: true, message: `Checked in successfully at ${timeStr}! Status: Present`, record: newRecord, employee };
+}
+
+export async function checkOutAttendance(
+  employeeId: string
+): Promise<{ success: boolean; message: string; record?: AttendanceRecord; employee?: Employee }> {
+  const db = ensureDatabase();
+  const employee = db.employees.find(e => e.id === employeeId);
+
+  if (!employee) {
+    return { success: false, message: `Employee with ID ${employeeId} not found.` };
+  }
+
+  const todayStr = 'Today, Aug 22';
+  const existingLogIndex = db.attendanceRecords.findIndex(
+    a => a.employeeId === employeeId && (a.date === todayStr || a.date === new Date().toISOString().split('T')[0])
+  );
+
+  const existingLog = existingLogIndex !== -1 ? db.attendanceRecords[existingLogIndex] : null;
+
+  // Prevent invalid check-out
+  if (!existingLog || !existingLog.checkInTime || existingLog.checkInTime === '--') {
+    return { success: false, message: 'Cannot clock out: No active check-in record found for today.' };
+  }
+
+  if (existingLog.checkOutTime && existingLog.checkOutTime !== '--') {
+    return { success: false, message: `Already clocked out at ${existingLog.checkOutTime}. Duplicate clock-out is not permitted.` };
+  }
+
+  const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  
+  // Calculate approximate duration
+  let hoursLogged = '8h 05m';
+  let isHalfDay = false;
+
+  try {
+    const [inHourStr, inMinRest] = existingLog.checkInTime.split(':');
+    const inMin = parseInt(inMinRest.split(' ')[0], 10);
+    let inHour = parseInt(inHourStr, 10);
+    if (existingLog.checkInTime.includes('PM') && inHour < 12) inHour += 12;
+    if (existingLog.checkInTime.includes('AM') && inHour === 12) inHour = 0;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+
+    const diffMinutes = Math.max(10, (currentHour * 60 + currentMin) - (inHour * 60 + inMin));
+    const h = Math.floor(diffMinutes / 60);
+    const m = diffMinutes % 60;
+    hoursLogged = `${h}h ${m < 10 ? '0' + m : m}m`;
+    if (h < 4) isHalfDay = true;
+  } catch {
+    hoursLogged = '7h 45m';
+  }
+
+  const finalStatus: AttendanceRecord['status'] = isHalfDay ? 'Half-day' : 'Present';
+
+  existingLog.checkOutTime = timeStr;
+  existingLog.workHours = hoursLogged;
+  existingLog.status = finalStatus;
+
+  employee.attendanceToday = {
+    checkIn: existingLog.checkInTime,
+    checkOut: timeStr,
+    status: finalStatus
+  };
+
+  employee.activities = [
+    {
+      id: `ACT-${Date.now()}`,
+      type: 'attendance',
+      title: 'Biometric Clock-Out Recorded',
+      description: `Clocked out at ${timeStr} • Total duration: ${hoursLogged} (Status: ${finalStatus})`,
+      timestamp: 'Just now',
+      status: 'info'
+    },
+    ...(employee.activities || [])
+  ];
+
+  saveDatabase(db);
+  return { 
+    success: true, 
+    message: `Checked out successfully at ${timeStr}. Total time logged: ${hoursLogged}.`, 
+    record: existingLog, 
+    employee 
+  };
+}
 
 export async function getAttendanceRecords(filter?: {
   employeeId?: string;
@@ -194,6 +363,43 @@ export async function getAttendanceRecords(filter?: {
   const db = ensureDatabase();
   const employees = db.employees;
 
+  // If querying weekly history for a single employee
+  if (filter?.employeeId && filter.employeeId !== 'all' && filter.viewMode === 'weekly') {
+    const emp = employees.find(e => e.id === filter.employeeId);
+    if (!emp) return [];
+
+    const existingLog = db.attendanceRecords.find(a => a.employeeId === emp.id);
+    const isOnLeave = emp.status === 'On Leave';
+
+    // Generate weekly historical day logs
+    const weekDays = [
+      { day: 'Today, Aug 22', in: existingLog?.checkInTime || emp.attendanceToday?.checkIn || '08:52 AM', out: existingLog?.checkOutTime || emp.attendanceToday?.checkOut || '--', hrs: existingLog?.workHours || '3h 10m', status: isOnLeave ? 'Approved Leave' : (existingLog?.status as any || 'Present'), indicator: (isOnLeave ? 'airplane' : 'green') as StatusIndicatorType },
+      { day: 'Friday, Aug 21', in: '08:48 AM', out: '05:32 PM', hrs: '8h 44m', status: 'Present' as const, indicator: 'green' as const },
+      { day: 'Thursday, Aug 20', in: '08:55 AM', out: '05:15 PM', hrs: '8h 20m', status: 'Present' as const, indicator: 'green' as const },
+      { day: 'Wednesday, Aug 19', in: '09:30 AM', out: '01:30 PM', hrs: '4h 00m', status: 'Half-Day' as const, indicator: 'half-day' as const },
+      { day: 'Tuesday, Aug 18', in: '--', out: '--', hrs: '0h 00m', status: 'Approved Leave' as const, indicator: 'airplane' as const },
+      { day: 'Monday, Aug 17', in: '08:50 AM', out: '05:25 PM', hrs: '8h 35m', status: 'Present' as const, indicator: 'green' as const },
+      { day: 'Friday, Aug 14', in: '--', out: '--', hrs: '0h 00m', status: 'Absent' as const, indicator: 'yellow' as const }
+    ];
+
+    return weekDays.map((wd, i) => ({
+      id: `HIST-${emp.id}-${i}`,
+      employeeId: emp.id,
+      employeeName: emp.name,
+      employeeAvatar: emp.avatar,
+      department: emp.department,
+      date: wd.day,
+      checkIn: wd.in,
+      checkOut: wd.out,
+      workHours: wd.hrs,
+      extraHours: wd.status === 'Present' ? '+20m' : '0m',
+      status: wd.status,
+      statusIndicator: wd.indicator,
+      ipLocation: `${emp.location.split('(')[0].trim()} (192.168.1.50)`,
+      device: 'Workstation'
+    }));
+  }
+
   // Build comprehensive attendance items across all employees
   let records: AttendanceRecordItem[] = employees.map(emp => {
     const existingLog = db.attendanceRecords.find(a => a.employeeId === emp.id);
@@ -201,8 +407,8 @@ export async function getAttendanceRecords(filter?: {
     
     // Determine check-in, check-out, and status
     let checkIn = existingLog?.checkInTime || (emp.attendanceToday?.checkIn || '--');
-    let checkOut = existingLog?.checkOutTime || '--';
-    let workHours = '8h 00m';
+    let checkOut = existingLog?.checkOutTime || (emp.attendanceToday?.checkOut || '--');
+    let workHours = existingLog?.workHours || '8h 00m';
     let extraHours = '+0m';
     let status: AttendanceRecordItem['status'] = 'Present';
     let statusIndicator: AttendanceRecordItem['statusIndicator'] = 'green';
@@ -214,19 +420,22 @@ export async function getAttendanceRecords(filter?: {
       checkOut = '--';
       workHours = '0h';
       extraHours = '0h';
+    } else if (existingLog?.status === 'Half-day' || existingLog?.status === 'Half-Day' || emp.attendanceToday?.status === 'Half-Day' || emp.attendanceToday?.status === 'Half-day') {
+      status = 'Half-Day';
+      statusIndicator = 'half-day';
+      workHours = existingLog?.workHours || '4h 00m';
+      extraHours = '0h';
     } else if (emp.attendanceToday?.status === 'Late' || existingLog?.status === 'Late') {
       status = 'Late';
       statusIndicator = 'yellow';
       workHours = '7h 15m';
       extraHours = '0h';
-      checkOut = '05:30 PM';
     } else if (emp.status === 'Remote') {
       status = 'Remote';
       statusIndicator = 'green';
-      workHours = '8h 15m';
+      workHours = existingLog?.workHours || '8h 15m';
       extraHours = '+15m';
-      checkOut = '05:15 PM';
-    } else if (!existingLog && !emp.attendanceToday?.checkIn) {
+    } else if (!existingLog && (!emp.attendanceToday?.checkIn || emp.attendanceToday?.checkIn === '--' || emp.attendanceToday?.status === 'Absent')) {
       status = 'Absent';
       statusIndicator = 'yellow';
       checkIn = '--';
@@ -236,7 +445,6 @@ export async function getAttendanceRecords(filter?: {
     } else {
       status = 'Present';
       statusIndicator = 'green';
-      checkOut = '05:30 PM';
       extraHours = '+30m';
     }
 
@@ -293,7 +501,7 @@ export async function logAttendance(record: Partial<AttendanceRecord>): Promise<
     checkInTime: record.checkInTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     checkOutTime: record.checkOutTime || '--',
     workHours: record.workHours || 'Active',
-    status: record.status || 'On-Time',
+    status: record.status || 'Present',
     ipLocation: record.ipLocation || 'SF HQ Office (192.168.1.50)',
     device: record.device || 'Workstation'
   };
@@ -316,9 +524,10 @@ export async function getLeaveRequests(filter?: {
   let list = db.leaveRequests.map(req => {
     let leaveTypeMapped: AdminLeaveItem['leaveType'] = 'Paid Time Off';
     if (req.leaveType.includes('Sick')) leaveTypeMapped = 'Sick Leave';
-    else if (req.leaveType.includes('Casual')) leaveTypeMapped = 'Paid Time Off';
-    else if (req.leaveType.includes('Emergency')) leaveTypeMapped = 'Emergency Leave';
     else if (req.leaveType.includes('Unpaid')) leaveTypeMapped = 'Unpaid Leave';
+    else if (req.leaveType.includes('Emergency')) leaveTypeMapped = 'Emergency Leave';
+    else if (req.leaveType.includes('Casual')) leaveTypeMapped = 'Casual Leave';
+    else if (req.leaveType.includes('Paid')) leaveTypeMapped = 'Paid Time Off';
 
     return {
       id: req.id,
@@ -347,7 +556,12 @@ export async function getLeaveRequests(filter?: {
       list = list.filter(l => l.status === status);
     }
     if (category && category !== 'All') {
-      list = list.filter(l => l.leaveType === category);
+      list = list.filter(l => {
+        if (category === 'Paid Time Off' || category === 'Paid Leave') {
+          return l.leaveType === 'Paid Time Off' || l.leaveType === 'Casual Leave';
+        }
+        return l.leaveType === category;
+      });
     }
     if (employeeId && employeeId !== 'all') {
       list = list.filter(l => l.employeeId === employeeId);
@@ -357,31 +571,82 @@ export async function getLeaveRequests(filter?: {
   return list;
 }
 
-export async function createLeaveRequest(data: Partial<LeaveRequest>): Promise<LeaveRequest> {
+export async function createLeaveRequest(data: Partial<LeaveRequest>): Promise<{ success: boolean; message: string; data?: LeaveRequest }> {
   const db = ensureDatabase();
   const employee = db.employees.find(e => e.id === data.employeeId);
 
+  if (!employee) {
+    return { success: false, message: `Employee with ID ${data.employeeId} not found.` };
+  }
+
+  if (!data.startDate || !data.endDate || !data.reason) {
+    return { success: false, message: 'Start date, end date, and remarks/reason are required.' };
+  }
+
+  const start = new Date(data.startDate);
+  const end = new Date(data.endDate);
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return { success: false, message: 'Invalid date format provided.' };
+  }
+
+  if (start.getTime() > end.getTime()) {
+    return { success: false, message: 'Start date cannot be later than end date.' };
+  }
+
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const calculatedDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+  // Check for duplicate / overlapping leave requests
+  const existingOverlap = db.leaveRequests.find(l => {
+    if (l.employeeId !== employee.id || l.status === 'Rejected') return false;
+    const lStart = new Date(l.startDate);
+    const lEnd = new Date(l.endDate);
+    return (start <= lEnd && end >= lStart);
+  });
+
+  if (existingOverlap) {
+    return { 
+      success: false, 
+      message: `You already have a ${existingOverlap.status} leave request (${existingOverlap.id}) overlapping this date range (${existingOverlap.startDate} to ${existingOverlap.endDate}).` 
+    };
+  }
+
   const newRequest: LeaveRequest = {
     id: data.id || `LV-${Math.floor(500 + Math.random() * 500)}`,
-    employeeId: data.employeeId || 'EMP-1001',
-    employeeName: data.employeeName || employee?.name || 'Sarah Jenkins',
-    employeeAvatar: data.employeeAvatar || employee?.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    department: data.department || employee?.department || 'Engineering',
-    role: data.role || employee?.role || 'Engineer',
-    leaveType: data.leaveType || 'Paid Annual Leave',
-    startDate: data.startDate || new Date().toISOString().split('T')[0],
-    endDate: data.endDate || new Date().toISOString().split('T')[0],
-    daysCount: data.daysCount || 1,
-    reason: data.reason || 'Personal time off',
-    appliedDate: data.appliedDate || new Date().toISOString().split('T')[0],
-    status: data.status || 'Pending',
+    employeeId: employee.id,
+    employeeName: employee.name,
+    employeeAvatar: employee.avatar,
+    department: employee.department,
+    role: employee.role,
+    leaveType: data.leaveType || 'Paid Leave',
+    startDate: data.startDate,
+    endDate: data.endDate,
+    daysCount: data.daysCount || calculatedDays,
+    reason: data.reason,
+    appliedDate: new Date().toISOString().split('T')[0],
+    status: 'Pending',
     conflictWarning: data.conflictWarning,
-    adminRemarks: data.adminRemarks
+    adminRemarks: undefined
   };
 
   db.leaveRequests.unshift(newRequest);
+
+  // Add activity log to employee
+  employee.activities = [
+    {
+      id: `ACT-${Date.now()}`,
+      type: 'leave',
+      title: `${newRequest.leaveType} Submitted`,
+      description: `${newRequest.daysCount} day(s) from ${newRequest.startDate} to ${newRequest.endDate} (Status: Pending HR Review)`,
+      timestamp: 'Just now',
+      status: 'info'
+    },
+    ...(employee.activities || [])
+  ];
+
   saveDatabase(db);
-  return newRequest;
+  return { success: true, message: 'Leave application submitted successfully for HR review.', data: newRequest };
 }
 
 export async function updateLeaveStatus(
@@ -422,15 +687,54 @@ export async function approveLeaveRequest(
     const emp = db.employees[empIndex];
     emp.status = 'On Leave';
     emp.attendanceToday = {
-      status: 'Absent'
+      checkIn: '--',
+      checkOut: '--',
+      status: 'Leave'
     };
 
-    // Deduct leave balance
+    // Deduct leave balance for Paid / Sick
     if (req.leaveType.includes('Sick') && emp.leaveBalance?.sick) {
       emp.leaveBalance.sick.used = Math.min(emp.leaveBalance.sick.total, emp.leaveBalance.sick.used + req.daysCount);
-    } else if (emp.leaveBalance?.paid) {
+    } else if (!req.leaveType.includes('Unpaid') && emp.leaveBalance?.paid) {
       emp.leaveBalance.paid.used = Math.min(emp.leaveBalance.paid.total, emp.leaveBalance.paid.used + req.daysCount);
     }
+
+    // Sync with attendance records: Update today or create leave log
+    const todayLogIndex = db.attendanceRecords.findIndex(a => a.employeeId === emp.id);
+    if (todayLogIndex !== -1) {
+      db.attendanceRecords[todayLogIndex].status = 'Approved Leave';
+      db.attendanceRecords[todayLogIndex].checkInTime = '--';
+      db.attendanceRecords[todayLogIndex].checkOutTime = '--';
+      db.attendanceRecords[todayLogIndex].workHours = '0h (On Leave)';
+    } else {
+      db.attendanceRecords.unshift({
+        id: `ATT-${emp.id}`,
+        employeeId: emp.id,
+        employeeName: emp.name,
+        employeeAvatar: emp.avatar,
+        department: emp.department,
+        date: 'Today, Aug 22',
+        checkInTime: '--',
+        checkOutTime: '--',
+        workHours: '0h (On Leave)',
+        status: 'Approved Leave',
+        ipLocation: emp.location,
+        device: 'Leave Recorded'
+      });
+    }
+
+    // Add activity record
+    emp.activities = [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'leave',
+        title: `Leave Application Approved`,
+        description: `${req.leaveType} (${req.daysCount}d) approved by HR.${adminRemarks ? ` Remarks: "${adminRemarks}"` : ''}`,
+        timestamp: 'Just now',
+        status: 'success'
+      },
+      ...(emp.activities || [])
+    ];
   }
 
   saveDatabase(db);
@@ -465,6 +769,22 @@ export async function rejectLeaveRequest(
   req.status = 'Rejected';
   if (adminRemarks) {
     req.adminRemarks = adminRemarks;
+  }
+
+  const empIndex = db.employees.findIndex(e => e.id === req.employeeId);
+  if (empIndex !== -1) {
+    const emp = db.employees[empIndex];
+    emp.activities = [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'leave',
+        title: `Leave Application Rejected`,
+        description: `${req.leaveType} (${req.daysCount}d) rejected by HR.${adminRemarks ? ` Remarks: "${adminRemarks}"` : ''}`,
+        timestamp: 'Just now',
+        status: 'warning'
+      },
+      ...(emp.activities || [])
+    ];
   }
 
   saveDatabase(db);

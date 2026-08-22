@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Employee, 
   LeaveRequest, 
@@ -13,6 +13,13 @@ import { QuickAccessCard } from './QuickAccessCard';
 import { ActivityFeed } from './ActivityFeed';
 import { EmployeeProfileView } from './EmployeeProfileView';
 import { AvatarUpload } from './AvatarUpload';
+import { 
+  checkInApi, 
+  checkOutApi, 
+  fetchAttendanceApi, 
+  fetchLeavesApi, 
+  createLeaveApi 
+} from '../lib/apiClient';
 import { 
   User, 
   Clock, 
@@ -36,7 +43,11 @@ import {
   HelpCircle,
   Bell,
   Search,
-  Check
+  Check,
+  Plane,
+  Loader2,
+  AlertTriangle,
+  History
 } from 'lucide-react';
 
 interface EmployeeDashboardProps {
@@ -50,28 +61,42 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
   onUpdateEmployee,
   onSwitchToAdmin
 }) => {
-  // Navigation: 'dashboard' vs 'profile' vs 'attendance-history'
+  // Navigation: 'dashboard' vs 'profile'
   const [activeMainView, setActiveMainView] = useState<'dashboard' | 'profile'>('dashboard');
 
   // Real-time Clock for Live Attendance
   const [currentTime, setCurrentTime] = useState<string>('');
-  const [isPunchedIn, setIsPunchedIn] = useState<boolean>(
-    !!currentEmployee.attendanceToday.checkIn && currentEmployee.attendanceToday.status !== 'Absent'
-  );
+  
+  // Biometric Shift State
+  const isCheckedIn = !!currentEmployee.attendanceToday?.checkIn && currentEmployee.attendanceToday?.checkIn !== '--';
+  const isCheckedOut = !!currentEmployee.attendanceToday?.checkOut && currentEmployee.attendanceToday?.checkOut !== '--';
+  const isShiftActive = isCheckedIn && !isCheckedOut;
+  const isShiftDone = isCheckedIn && isCheckedOut;
+
   const [punchInTime, setPunchInTime] = useState<string>(
-    currentEmployee.attendanceToday.checkIn || '08:52 AM'
+    currentEmployee.attendanceToday?.checkIn || '08:52 AM'
   );
+  const [isPunching, setIsPunching] = useState<boolean>(false);
 
   // Modals
   const [isApplyLeaveOpen, setIsApplyLeaveOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
 
-  // Leave Form State
-  const [leaveType, setLeaveType] = useState<LeaveType>('Paid Annual Leave');
+  // Attendance History State
+  const [attendanceViewMode, setAttendanceViewMode] = useState<'daily' | 'weekly'>('weekly');
+  const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
+  const [isAttendanceLoading, setIsAttendanceLoading] = useState(false);
+
+  // Leave Form & History State
+  const [leaveModalTab, setLeaveModalTab] = useState<'apply' | 'history'>('apply');
+  const [leaveType, setLeaveType] = useState<LeaveType>('Paid Leave');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [leaveReason, setLeaveReason] = useState('');
+  const [isSubmittingLeave, setIsSubmittingLeave] = useState(false);
+  const [leaveHistory, setLeaveHistory] = useState<any[]>([]);
+  const [isLeavesLoading, setIsLeavesLoading] = useState(false);
 
   // Toast Notification State
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -96,80 +121,112 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Attendance Punch Action
-  const handleTogglePunch = () => {
-    const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    if (isPunchedIn) {
-      setIsPunchedIn(false);
-      showToast(`Clocked Out successfully at ${timeStr}. Have a great evening!`, 'info');
-      // Update employee activities
-      const newActivity: ActivityItem = {
-        id: `ACT-${Date.now()}`,
-        type: 'attendance',
-        title: 'Biometric Clock-Out Recorded',
-        description: `Clocked out at ${timeStr} from ${currentEmployee.location}`,
-        timestamp: 'Just now',
-        status: 'info'
-      };
-      onUpdateEmployee({
-        ...currentEmployee,
-        activities: [newActivity, ...(currentEmployee.activities || [])]
+  // Fetch Attendance logs for Modal
+  const loadAttendanceLogs = useCallback(async (mode: 'daily' | 'weekly') => {
+    setIsAttendanceLoading(true);
+    try {
+      const data = await fetchAttendanceApi({
+        employeeId: currentEmployee.id,
+        viewMode: mode
       });
-    } else {
-      setIsPunchedIn(true);
-      setPunchInTime(timeStr);
-      showToast(`Clocked In successfully at ${timeStr}! Status: On-Time`, 'success');
-      const newActivity: ActivityItem = {
-        id: `ACT-${Date.now()}`,
-        type: 'attendance',
-        title: 'Biometric Clock-In Recorded',
-        description: `Clocked in at ${timeStr} at ${currentEmployee.location}`,
-        timestamp: 'Just now',
-        status: 'success'
-      };
-      onUpdateEmployee({
-        ...currentEmployee,
-        attendanceToday: {
-          checkIn: timeStr,
-          status: 'On-Time'
-        },
-        activities: [newActivity, ...(currentEmployee.activities || [])]
+      setAttendanceLogs(data);
+    } catch (err: any) {
+      console.error('Error fetching attendance logs:', err);
+    } finally {
+      setIsAttendanceLoading(false);
+    }
+  }, [currentEmployee.id]);
+
+  // Fetch Leave History for Modal
+  const loadLeaveHistory = useCallback(async () => {
+    setIsLeavesLoading(true);
+    try {
+      const data = await fetchLeavesApi({
+        employeeId: currentEmployee.id
       });
+      setLeaveHistory(data);
+    } catch (err: any) {
+      console.error('Error fetching leave history:', err);
+    } finally {
+      setIsLeavesLoading(false);
+    }
+  }, [currentEmployee.id]);
+
+  useEffect(() => {
+    if (isAttendanceModalOpen) {
+      loadAttendanceLogs(attendanceViewMode);
+    }
+  }, [isAttendanceModalOpen, attendanceViewMode, loadAttendanceLogs]);
+
+  useEffect(() => {
+    if (isApplyLeaveOpen) {
+      loadLeaveHistory();
+    }
+  }, [isApplyLeaveOpen, loadLeaveHistory]);
+
+  // Attendance Clock-In / Clock-Out Handler
+  const handleTogglePunch = async () => {
+    setIsPunching(true);
+    try {
+      if (isShiftActive) {
+        // Clock Out
+        const res = await checkOutApi(currentEmployee.id);
+        if (res.employee) {
+          onUpdateEmployee(res.employee);
+        }
+        showToast(res.message, 'info');
+      } else if (!isCheckedIn) {
+        // Clock In
+        const res = await checkInApi(currentEmployee.id, currentEmployee.location, 'Workstation');
+        if (res.employee) {
+          onUpdateEmployee(res.employee);
+          setPunchInTime(res.employee.attendanceToday?.checkIn || '');
+        }
+        showToast(res.message, 'success');
+      } else if (isShiftDone) {
+        showToast('Shift already completed for today. Duplicate clock-in is prevented.', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Attendance action failed.', 'error');
+    } finally {
+      setIsPunching(false);
     }
   };
 
   // Submit Leave Request
-  const handleSubmitLeave = (e: React.FormEvent) => {
+  const handleSubmitLeave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!startDate || !endDate || !leaveReason) {
-      showToast('Please fill in all leave request fields.', 'error');
+    if (!startDate || !endDate || !leaveReason.trim()) {
+      showToast('Please fill in all required fields (Start date, End date, and remarks).', 'error');
       return;
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    if (new Date(startDate) > new Date(endDate)) {
+      showToast('Start date cannot be after end date.', 'error');
+      return;
+    }
 
-    const newActivity: ActivityItem = {
-      id: `ACT-${Date.now()}`,
-      type: 'leave',
-      title: `${leaveType} Submitted`,
-      description: `${diffDays} day(s) requested from ${startDate} to ${endDate}`,
-      timestamp: 'Just now',
-      status: 'info'
-    };
+    setIsSubmittingLeave(true);
+    try {
+      const res = await createLeaveApi({
+        employeeId: currentEmployee.id,
+        leaveType,
+        startDate,
+        endDate,
+        reason: leaveReason.trim()
+      });
 
-    onUpdateEmployee({
-      ...currentEmployee,
-      activities: [newActivity, ...(currentEmployee.activities || [])]
-    });
-
-    setIsApplyLeaveOpen(false);
-    setStartDate('');
-    setEndDate('');
-    setLeaveReason('');
-    showToast(`Leave application (${diffDays} days) submitted to ${currentEmployee.managerName || 'Manager'}!`, 'success');
+      showToast(res.message || 'Leave application submitted successfully!', 'success');
+      setStartDate('');
+      setEndDate('');
+      setLeaveReason('');
+      setLeaveModalTab('history');
+      loadLeaveHistory();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to submit leave application.', 'error');
+    } finally {
+      setIsSubmittingLeave(false);
+    }
   };
 
   // Profile Update Handler with Toast
@@ -178,9 +235,9 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
     showToast('Profile updated successfully! Address and phone number have been saved.', 'success');
   };
 
-  const remainingPaidLeave = currentEmployee.leaveBalance.paid.total - currentEmployee.leaveBalance.paid.used;
-  const remainingCasualLeave = currentEmployee.leaveBalance.casual.total - currentEmployee.leaveBalance.casual.used;
-  const remainingSickLeave = currentEmployee.leaveBalance.sick.total - currentEmployee.leaveBalance.sick.used;
+  const remainingPaidLeave = currentEmployee.leaveBalance?.paid ? currentEmployee.leaveBalance.paid.total - currentEmployee.leaveBalance.paid.used : 20;
+  const remainingCasualLeave = currentEmployee.leaveBalance?.casual ? currentEmployee.leaveBalance.casual.total - currentEmployee.leaveBalance.casual.used : 12;
+  const remainingSickLeave = currentEmployee.leaveBalance?.sick ? currentEmployee.leaveBalance.sick.total - currentEmployee.leaveBalance.sick.used : 10;
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-800 font-sans flex flex-col selection:bg-indigo-500 selection:text-white">
@@ -346,23 +403,53 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                     <div className="text-lg font-mono font-bold text-white">
                       {currentTime || '08:52:00 AM'}
                     </div>
-                    <div className="text-[10px] text-emerald-300 flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      {isPunchedIn ? `Punched in @ ${punchInTime}` : 'Currently Clocked Out'}
+                    <div className="text-[10px] flex items-center gap-1 mt-0.5">
+                      {isShiftActive ? (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-emerald-300">Active Shift • Punched @ {punchInTime}</span>
+                        </>
+                      ) : isShiftDone ? (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                          <span className="text-sky-300">Shift Completed ({currentEmployee.attendanceToday?.checkOut})</span>
+                        </>
+                      ) : currentEmployee.status === 'On Leave' ? (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                          <span className="text-purple-300">On Approved Leave</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                          <span className="text-slate-300">Currently Clocked Out</span>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   <button
                     onClick={handleTogglePunch}
-                    className={`px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
-                      isPunchedIn
+                    disabled={isPunching || currentEmployee.status === 'On Leave'}
+                    className={`px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      isShiftActive
                         ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30'
+                        : isShiftDone
+                        ? 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                         : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/30 font-extrabold'
                     }`}
                   >
-                    {isPunchedIn ? (
+                    {isPunching ? (
                       <>
-                        <Square className="w-3.5 h-3.5" /> Clock Out
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Processing...
+                      </>
+                    ) : isShiftActive ? (
+                      <>
+                        <Square className="w-3.5 h-3.5 fill-current" /> Clock Out
+                      </>
+                    ) : isShiftDone ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Shift Done
                       </>
                     ) : (
                       <>
@@ -406,10 +493,13 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   subtitle="Biometric timestamps, daily punctuality, and hours logged."
                   icon={Clock}
                   accentColor="emerald"
-                  badge={{ text: isPunchedIn ? 'Active Shift' : 'Clocked Out', variant: 'emerald' }}
+                  badge={{ 
+                    text: isShiftActive ? 'Active Shift' : isShiftDone ? 'Shift Done' : currentEmployee.status === 'On Leave' ? 'On Leave' : 'Clocked Out', 
+                    variant: isShiftActive ? 'emerald' : 'slate' 
+                  }}
                   highlightMetric={{ 
                     label: "Today's Status", 
-                    value: currentEmployee.attendanceToday.status || 'On-Time' 
+                    value: currentEmployee.attendanceToday?.status || 'Present' 
                   }}
                   onClick={() => setIsAttendanceModalOpen(true)}
                 />
@@ -421,7 +511,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
                   icon={CalendarClock}
                   accentColor="amber"
                   badge={{ text: `${remainingPaidLeave}d Available`, variant: 'amber' }}
-                  highlightMetric={{ label: 'Paid Time-Off', value: `${remainingPaidLeave} / ${currentEmployee.leaveBalance.paid.total} Days` }}
+                  highlightMetric={{ label: 'Paid Time-Off', value: `${remainingPaidLeave} / ${currentEmployee.leaveBalance?.paid?.total || 20} Days` }}
                   onClick={() => setIsApplyLeaveOpen(true)}
                 />
 
@@ -572,156 +662,364 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({
       </main>
 
       {/* ========================================================================= */}
-      {/* MODAL: APPLY FOR LEAVE                                                    */}
+      {/* MODAL: APPLY FOR LEAVE & LEAVE HISTORY                                    */}
       {/* ========================================================================= */}
       {isApplyLeaveOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             
+            {/* Modal Header */}
             <div className="p-5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <CalendarClock className="w-5 h-5" />
-                <h3 className="text-base font-bold">Apply for Time Off</h3>
+                <div>
+                  <h3 className="text-base font-bold">Leave & Time Off Management</h3>
+                  <p className="text-[11px] text-indigo-200">Employee portal request desk</p>
+                </div>
               </div>
               <button
                 onClick={() => setIsApplyLeaveOpen(false)}
-                className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmitLeave} className="p-6 space-y-4 text-xs">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Leave Category</label>
-                <select
-                  value={leaveType}
-                  onChange={(e) => setLeaveType(e.target.value as LeaveType)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                >
-                  <option value="Paid Annual Leave">Paid Annual Leave ({remainingPaidLeave} days left)</option>
-                  <option value="Casual Leave">Casual Leave ({remainingCasualLeave} days left)</option>
-                  <option value="Sick Leave">Sick Leave ({remainingSickLeave} days left)</option>
-                  <option value="Emergency Leave">Emergency Leave (5 days left)</option>
-                </select>
-              </div>
+            {/* Modal Navigation Tabs */}
+            <div className="flex border-b border-slate-100 bg-slate-50/80 px-6 pt-3 gap-2">
+              <button
+                onClick={() => setLeaveModalTab('apply')}
+                className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                  leaveModalTab === 'apply'
+                    ? 'border-indigo-600 text-indigo-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Apply for Leave
+              </button>
+              <button
+                onClick={() => setLeaveModalTab('history')}
+                className={`pb-2.5 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
+                  leaveModalTab === 'history'
+                    ? 'border-indigo-600 text-indigo-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <span>My Leave History</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700 font-bold">
+                  {leaveHistory.length}
+                </span>
+              </button>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
+            {/* TAB 1: APPLY FOR LEAVE FORM */}
+            {leaveModalTab === 'apply' && (
+              <form onSubmit={handleSubmitLeave} className="p-6 space-y-4 text-xs">
+                
+                {/* Leave Category Selector */}
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Start Date</label>
-                  <input
-                    type="date"
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-slate-700 block">Leave Category</label>
+                    <span className="text-[11px] text-indigo-600 font-semibold">
+                      {leaveType === 'Paid Leave' || leaveType === 'Paid Annual Leave'
+                        ? `${remainingPaidLeave} days available`
+                        : leaveType === 'Sick Leave'
+                        ? `${remainingSickLeave} days available`
+                        : leaveType === 'Unpaid Leave'
+                        ? 'Unlimited allocation (Loss of Pay)'
+                        : 'Standard quota'}
+                    </span>
+                  </div>
+                  <select
+                    value={leaveType}
+                    onChange={(e) => setLeaveType(e.target.value as LeaveType)}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  >
+                    <option value="Paid Leave">Paid Leave ({remainingPaidLeave} days remaining)</option>
+                    <option value="Sick Leave">Sick Leave ({remainingSickLeave} days remaining)</option>
+                    <option value="Unpaid Leave">Unpaid Leave (No balance deduction)</option>
+                    <option value="Casual Leave">Casual Leave ({remainingCasualLeave} days remaining)</option>
+                    <option value="Emergency Leave">Emergency Leave (5 days quota)</option>
+                  </select>
+                </div>
+
+                {/* Date Inputs */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Start Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">End Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Calculated Days Duration Badge */}
+                {startDate && endDate && (
+                  <div className="p-2.5 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between text-[11px] text-indigo-900">
+                    <span className="font-medium">Total Absence Duration:</span>
+                    <span className="font-bold bg-white px-2 py-0.5 rounded-md border border-indigo-200">
+                      {Math.max(1, Math.ceil(Math.abs(new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1)} Day(s)
+                    </span>
+                  </div>
+                )}
+
+                {/* Reason & Remarks */}
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Reason for Absence / Remarks</label>
+                  <textarea
                     required
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    rows={3}
+                    value={leaveReason}
+                    onChange={(e) => setLeaveReason(e.target.value)}
+                    placeholder="e.g. Attending urgent family matter, doctor consultation..."
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                 </div>
-                <div>
-                  <label className="font-bold text-slate-700 block mb-1">End Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  />
+
+                {/* Modal Footer Controls */}
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsApplyLeaveOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingLeave}
+                    className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmittingLeave ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5" /> Submit Application
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* TAB 2: MY LEAVE HISTORY */}
+            {leaveModalTab === 'history' && (
+              <div className="p-6 space-y-3 max-h-[460px] overflow-y-auto">
+                {isLeavesLoading ? (
+                  <div className="text-center py-10 text-slate-400 text-xs">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-600" />
+                    <span>Loading your leave requests...</span>
+                  </div>
+                ) : leaveHistory.length === 0 ? (
+                  <div className="text-center py-10 text-slate-400 text-xs">
+                    <CalendarClock className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                    <p className="font-bold text-slate-700">No leave requests found</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">You haven't submitted any time off applications yet.</p>
+                  </div>
+                ) : (
+                  leaveHistory.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2 text-xs transition-all hover:bg-slate-50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900">{item.leaveType}</span>
+                          <span className="text-[10px] font-mono text-slate-400">ID: {item.id}</span>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                          item.status === 'Approved' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
+                          item.status === 'Rejected' ? 'bg-rose-100 text-rose-800 border-rose-200' :
+                          'bg-amber-100 text-amber-900 border-amber-200'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-[11px] text-slate-600">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5 text-indigo-600" /> {item.validityFrom || item.startDate} to {item.validityTo || item.endDate}
+                        </span>
+                        <span>•</span>
+                        <span className="font-semibold text-slate-900">
+                          {item.allocationDays || item.daysCount} Day(s)
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200/60 italic">
+                        "{item.remarks || item.reason}"
+                      </div>
+
+                      {/* Admin Remarks / Reviewer Notes */}
+                      {item.adminRemarks && (
+                        <div className="p-2.5 bg-amber-50/90 border border-amber-200 rounded-xl text-[11px] text-amber-900">
+                          <strong className="block text-[10px] uppercase font-bold text-amber-800 mb-0.5">
+                            HR Reviewer Comments:
+                          </strong>
+                          {item.adminRemarks}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+
+                <div className="pt-2 flex items-center justify-end">
+                  <button
+                    onClick={() => setIsApplyLeaveOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Reason for Absence</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={leaveReason}
-                  onChange={(e) => setLeaveReason(e.target.value)}
-                  placeholder="e.g. Attending family wedding, personal recovery..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsApplyLeaveOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
-                >
-                  Submit Application
-                </button>
-              </div>
-            </form>
+            )}
 
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: ATTENDANCE TIMESTAMPS                                              */}
+      {/* MODAL: ATTENDANCE & BIOMETRIC HISTORY                                     */}
       {/* ========================================================================= */}
       {isAttendanceModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             
+            {/* Modal Header */}
             <div className="p-5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <Clock className="w-5 h-5" />
-                <h3 className="text-base font-bold">Attendance & Biometrics</h3>
+                <div>
+                  <h3 className="text-base font-bold">Attendance & Biometrics</h3>
+                  <p className="text-[11px] text-emerald-200">Daily verification & shift logs</p>
+                </div>
               </div>
               <button
                 onClick={() => setIsAttendanceModalOpen(false)}
-                className="p-1 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-6 space-y-4 text-xs">
+              
+              {/* Today's Active Punch Status Card */}
               <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-between">
                 <div>
-                  <span className="text-emerald-800 font-semibold block">Today's Check-in</span>
-                  <div className="text-xl font-mono font-extrabold text-emerald-950 mt-0.5">{punchInTime}</div>
-                  <span className="text-[10px] text-emerald-700">Hardware Terminal: Gate 3 HQ</span>
+                  <span className="text-emerald-800 font-semibold block">Today's Check-in & Status</span>
+                  <div className="text-xl font-mono font-extrabold text-emerald-950 mt-0.5">
+                    {currentEmployee.attendanceToday?.checkIn || '--'}
+                  </div>
+                  <div className="text-[10px] text-emerald-700 mt-0.5">
+                    Check-out: <strong>{currentEmployee.attendanceToday?.checkOut || 'In Progress'}</strong> • Status: <strong>{currentEmployee.attendanceToday?.status || 'Present'}</strong>
+                  </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-xs">
                   <Check className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* View Switcher: Weekly History vs Daily */}
+              <div className="flex items-center justify-between pt-1">
                 <h4 className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">
-                  Recent Check-in Logs (This Week)
+                  Attendance History (Past 7 Days)
                 </h4>
-                <div className="space-y-1.5">
-                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                    <span>Yesterday (Aug 21)</span>
-                    <span className="font-mono font-bold text-slate-900">08:48 AM • 8h 12m</span>
-                  </div>
-                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                    <span>Wednesday (Aug 20)</span>
-                    <span className="font-mono font-bold text-slate-900">08:55 AM • 8h 05m</span>
-                  </div>
-                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                    <span>Tuesday (Aug 19)</span>
-                    <span className="font-mono font-bold text-slate-900">08:50 AM • 8h 20m</span>
-                  </div>
+                <div className="flex bg-slate-100 p-0.5 rounded-xl text-[11px] font-semibold">
+                  <button
+                    onClick={() => setAttendanceViewMode('weekly')}
+                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                      attendanceViewMode === 'weekly' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    Weekly Log
+                  </button>
+                  <button
+                    onClick={() => setAttendanceViewMode('daily')}
+                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                      attendanceViewMode === 'daily' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    Today
+                  </button>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
+              {/* Attendance Records List */}
+              <div className="space-y-2 max-h-[260px] overflow-y-auto">
+                {isAttendanceLoading ? (
+                  <div className="text-center py-8 text-slate-400 text-xs">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-emerald-600" />
+                    <span>Loading logs...</span>
+                  </div>
+                ) : attendanceLogs.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400 text-xs">
+                    <p className="font-bold text-slate-700">No attendance logs available</p>
+                  </div>
+                ) : (
+                  attendanceLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="p-3 bg-slate-50/80 rounded-xl border border-slate-100 flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <div className="font-bold text-slate-900">{log.date}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">
+                          In: <strong className="font-mono text-slate-700">{log.checkIn}</strong> • Out: <strong className="font-mono text-slate-700">{log.checkOut}</strong> • {log.workHours}
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border inline-flex items-center gap-1 ${
+                          log.status === 'Approved Leave' || log.status === 'Leave' ? 'bg-purple-100 text-purple-800 border-purple-200' :
+                          log.status === 'Half-day' || log.status === 'Half-Day' ? 'bg-sky-100 text-sky-800 border-sky-200' :
+                          log.status === 'Absent' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                          'bg-emerald-100 text-emerald-800 border-emerald-200'
+                        }`}>
+                          {log.status === 'Approved Leave' || log.status === 'Leave' ? (
+                            <>
+                              <Plane className="w-2.5 h-2.5" /> Leave
+                            </>
+                          ) : log.status === 'Half-day' || log.status === 'Half-Day' ? (
+                            <>
+                              <Clock className="w-2.5 h-2.5" /> Half-day
+                            </>
+                          ) : (
+                            log.status
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer Button */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-end">
                 <button
                   onClick={() => setIsAttendanceModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors cursor-pointer text-xs"
                 >
                   Close
                 </button>
               </div>
+
             </div>
 
           </div>

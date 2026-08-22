@@ -11,9 +11,16 @@ export type Department =
   | 'Finance'
   | 'Customer Success';
 
-export type AttendanceStatus = 'On-Time' | 'Late' | 'Half-Day' | 'Remote' | 'Absent';
+export type AttendanceStatus = 'Present' | 'Absent' | 'Half-day' | 'Leave' | 'On-Time' | 'Late' | 'Half-Day' | 'Remote' | 'Approved Leave';
 
-export type LeaveType = 'Casual Leave' | 'Sick Leave' | 'Paid Annual Leave' | 'Maternity/Paternity' | 'Emergency Leave';
+export type LeaveType = 
+  | 'Paid Leave' 
+  | 'Sick Leave' 
+  | 'Unpaid Leave' 
+  | 'Paid Annual Leave' 
+  | 'Casual Leave' 
+  | 'Emergency Leave' 
+  | 'Maternity/Paternity';
 
 export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
 
