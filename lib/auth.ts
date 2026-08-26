@@ -268,6 +268,25 @@ export function requireAdmin(request: NextRequest): { session: UserSession } | {
   return auth;
 }
 
+export function getAuthenticatedUser(request: NextRequest): UserSession | null {
+  return getSession(request);
+}
+
+export async function requireRole(roles: string | string[]) {
+  const { getCurrentSession } = await import('@/lib/session');
+  const session = await getCurrentSession();
+  if (!session) return null;
+
+  const allowedRoles = Array.isArray(roles) ? roles.map(r => r.toUpperCase()) : [roles.toUpperCase()];
+  const userRole = (session.user.role || '').toUpperCase();
+
+  if (!allowedRoles.includes(userRole)) {
+    return null;
+  }
+
+  return session;
+}
+
 /**
  * Helper to build Set-Cookie header string for session
  */
@@ -280,4 +299,5 @@ export function getSessionCookieHeader(cookieValue: string, maxAge = 28800): str
 export function getClearSessionCookieHeader(): string {
   return `${SESSION_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`;
 }
+
 
