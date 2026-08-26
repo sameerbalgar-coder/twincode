@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { EmployeeDashboard } from '@/components/EmployeeDashboard';
 import { HRAdminDashboard } from '@/components/HRAdminDashboard';
 import { mockEmployees } from '@/data/mockHrmsData';
 import { Employee } from '@/types/hrms';
-import { UserCheck, ShieldCheck } from 'lucide-react';
+import { UserCheck, ShieldCheck, LogIn } from 'lucide-react';
 
 export default function Home() {
   // Shared state of employees
@@ -84,6 +85,14 @@ export default function Home() {
               <span>HR Admin Hub</span>
             </button>
           </div>
+
+          <Link
+            href="/auth/login"
+            className="px-3 py-1 bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-white/10"
+          >
+            <LogIn className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Login Page</span>
+          </Link>
         </div>
       </div>
 

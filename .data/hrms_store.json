@@ -117,6 +117,22 @@
       ],
       "activities": [
         {
+          "id": "ACT-1787399727890",
+          "type": "leave",
+          "title": "Leave Application Rejected",
+          "description": "Paid Annual Leave (5d) rejected by HR.",
+          "timestamp": "Just now",
+          "status": "warning"
+        },
+        {
+          "id": "ACT-1787399727884",
+          "type": "leave",
+          "title": "Leave Application Rejected",
+          "description": "Paid Annual Leave (5d) rejected by HR.",
+          "timestamp": "Just now",
+          "status": "warning"
+        },
+        {
           "id": "ACT-1787396929018",
           "type": "leave",
           "title": "Leave Application Approved",
@@ -150,7 +166,7 @@
       "role": "Lead Product Designer",
       "department": "UI/UX Design",
       "employmentType": "Full-time",
-      "status": "Remote",
+      "status": "On Leave",
       "joinDate": "2021-11-01",
       "salary": "$130,000",
       "phone": "+1 (555) 345-6789",
@@ -166,7 +182,7 @@
         },
         "paid": {
           "total": 20,
-          "used": 11
+          "used": 13
         },
         "emergency": {
           "total": 5,
@@ -174,8 +190,9 @@
         }
       },
       "attendanceToday": {
-        "checkIn": "09:05 AM",
-        "status": "On-Time"
+        "checkIn": "--",
+        "checkOut": "--",
+        "status": "Leave"
       },
       "directReportsCount": 2,
       "managerName": "Elena Rostova",
@@ -244,6 +261,16 @@
           "fileSize": "2.1 MB",
           "uploadDate": "2021-10-28",
           "status": "Verified"
+        }
+      ],
+      "activities": [
+        {
+          "id": "ACT-1787399732325",
+          "type": "leave",
+          "title": "Leave Application Approved",
+          "description": "Casual Leave (2d) approved by HR.",
+          "timestamp": "Just now",
+          "status": "success"
         }
       ]
     },
@@ -1004,10 +1031,10 @@
       "employeeAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
       "department": "UI/UX Design",
       "date": "Today, Aug 22",
-      "checkInTime": "09:05 AM",
+      "checkInTime": "--",
       "checkOutTime": "--",
-      "workHours": "2h 45m (Active)",
-      "status": "Remote",
+      "workHours": "0h (On Leave)",
+      "status": "Approved Leave",
       "ipLocation": "Austin VPN (10.8.0.33)",
       "device": "Mac Studio M2 Max"
     },
@@ -1056,7 +1083,7 @@
       "daysCount": 5,
       "reason": "Family vacation and personal downtime after Q3 release sprint.",
       "appliedDate": "2026-08-20",
-      "status": "Pending",
+      "status": "Rejected",
       "conflictWarning": "Note: Marcus Vance is also scheduled off during that week"
     },
     {
@@ -1072,7 +1099,7 @@
       "daysCount": 2,
       "reason": "Attending Figma Config Regional Design Summit in Austin.",
       "appliedDate": "2026-08-21",
-      "status": "Pending"
+      "status": "Approved"
     },
     {
       "id": "LV-503",
@@ -1120,5 +1147,5 @@
       "status": "Approved"
     }
   ],
-  "lastUpdated": "2026-08-22T11:08:49.019Z"
+  "lastUpdated": "2026-08-22T11:55:32.326Z"
 }

@@ -57,10 +57,9 @@ export function verifyPassword(password: string, hash: string, salt: string): bo
 }
 
 // Initialize Default Secure Accounts (with precomputed scrypt hashes)
-// Admin: admin@dayflow.com / Admin@123456
-// Employee: sarah.jenkins@dayflow.com / Employee@123456
 const adminCreds = hashPassword('Admin@123456');
 const empCreds = hashPassword('Employee@123456');
+const pass123 = hashPassword('Password123!');
 
 export const userAccounts: UserAccount[] = [
   {
@@ -74,6 +73,26 @@ export const userAccounts: UserAccount[] = [
     createdAt: '2026-01-01'
   },
   {
+    id: 'USR-ADMIN-2',
+    email: 'amara.okafor@dayflow.internal',
+    passwordHash: pass123.hash,
+    salt: pass123.salt,
+    employeeId: 'EMP-1004', // Amara Okafor
+    name: 'Amara Okafor',
+    role: 'admin',
+    createdAt: '2026-01-01'
+  },
+  {
+    id: 'USR-HR-1',
+    email: 'hr@dayflow.internal',
+    passwordHash: pass123.hash,
+    salt: pass123.salt,
+    employeeId: 'EMP-1004', // Elena Rostova
+    name: 'Elena Rostova',
+    role: 'admin',
+    createdAt: '2026-01-01'
+  },
+  {
     id: 'USR-EMP-1',
     email: 'sarah.jenkins@dayflow.com',
     passwordHash: empCreds.hash,
@@ -82,8 +101,40 @@ export const userAccounts: UserAccount[] = [
     name: 'Sarah Jenkins',
     role: 'employee',
     createdAt: '2026-01-01'
+  },
+  {
+    id: 'USR-EMP-2',
+    email: 'alex.rivera@dayflow.internal',
+    passwordHash: pass123.hash,
+    salt: pass123.salt,
+    employeeId: 'EMP-1001', // Alex Rivera
+    name: 'Alex Rivera',
+    role: 'employee',
+    createdAt: '2026-01-01'
   }
 ];
+
+export function createUserAccount(accountData: {
+  employeeId: string;
+  email: string;
+  password: string;
+  role: 'admin' | 'employee';
+  name?: string;
+}): UserAccount {
+  const { hash, salt } = hashPassword(accountData.password);
+  const newAccount: UserAccount = {
+    id: `USR-${Date.now()}`,
+    email: accountData.email.trim().toLowerCase(),
+    passwordHash: hash,
+    salt,
+    employeeId: accountData.employeeId.trim().toUpperCase(),
+    name: accountData.name || (accountData.role === 'admin' ? 'HR Admin' : 'Employee Member'),
+    role: accountData.role,
+    createdAt: new Date().toISOString()
+  };
+  userAccounts.push(newAccount);
+  return newAccount;
+}
 
 /**
  * Rate limiter helper: returns false if rate limit is exceeded
